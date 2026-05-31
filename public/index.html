@@ -1,11 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Live Stream</title>
+    <title>Live Stream App</title>
 </head>
 <body>
 
 <h1>My Live Stream</h1>
+
+<h2>Register</h2>
+<input type="text" id="regUser" placeholder="Username">
+<input type="password" id="regPass" placeholder="Password">
+<button onclick="register()">Register</button>
+
+<hr>
+
+<h2>Login</h2>
+<input type="text" id="loginUser" placeholder="Username">
+<input type="password" id="loginPass" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<hr>
 
 <button onclick="startCamera()">Start Live</button>
 <button onclick="stopCamera()">Stop Live</button>
@@ -15,10 +29,58 @@
 <video id="video" width="640" height="480" autoplay></video>
 
 <script>
+
 let stream;
 const video = document.getElementById("video");
 
+async function register() {
+
+    const username = document.getElementById("regUser").value;
+    const password = document.getElementById("regPass").value;
+
+    const res = await fetch("/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    const data = await res.json();
+
+    alert(data.message);
+}
+
+async function login() {
+
+    const username = document.getElementById("loginUser").value;
+    const password = document.getElementById("loginPass").value;
+
+    const res = await fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        alert("Login Success");
+    }else{
+        alert("Login Failed");
+    }
+}
+
 async function startCamera() {
+
     stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
@@ -28,11 +90,13 @@ async function startCamera() {
 }
 
 function stopCamera() {
+
     if(stream){
         stream.getTracks().forEach(track => track.stop());
         video.srcObject = null;
     }
 }
+
 </script>
 
 </body>
