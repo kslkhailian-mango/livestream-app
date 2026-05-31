@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Live Stream</title>
+</head>
+<body>
+
+<h1>My Live Stream</h1>
+
+<button onclick="startCamera()">Start Live</button>
+<button onclick="stopCamera()">Stop Live</button>
+
+<br><br>
+
+<video id="video" width="640" height="480" autoplay></video>
+
+<script>
+let stream;
+const video = document.getElementById("video");
+
+async function startCamera() {
+    stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+    });
+
+    video.srcObject = stream;
+}
+
+function stopCamera() {
+    if(stream){
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+}
+</script>
+
+</body>
+</html>
