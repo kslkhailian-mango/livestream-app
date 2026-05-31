@@ -46,10 +46,22 @@ app.post("/login", (req, res) => {
     }
 });
 
-io.on("connection", (socket) => {
-    console.log("User connected");
-});
+let viewerCount = 0;
 
+io.on("connection", (socket) => {
+    viewerCount++;
+
+    io.emit("viewer-count", viewerCount);
+
+    socket.on("chat-message", (data) => {
+        io.emit("chat-message", data);
+    });
+
+    socket.on("disconnect", () => {
+        viewerCount--;
+        io.emit("viewer-count", viewerCount);
+    });
+});
 const PORT = process.env.PORT || 3000;
 
 http.listen(PORT, () => {
