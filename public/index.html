@@ -27,7 +27,20 @@
 <br><br>
 
 <video id="video" width="640" height="480" autoplay></video>
+<h3>Viewers: <span id="viewerCount">0</span></h3>
 
+<h3>Live Chat</h3>
+
+<div id="chatBox"
+style="width:640px;height:200px;border:1px solid black;overflow:auto;">
+</div>
+
+<br>
+
+<input type="text" id="chatInput" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
+
+<script src="/socket.io/socket.io.js"></script>
 <script>
 
 let stream;
@@ -96,7 +109,31 @@ function stopCamera() {
         video.srcObject = null;
     }
 }
+const socket = io();
 
+socket.on("viewer-count", (count) => {
+    document.getElementById("viewerCount").innerText = count;
+});
+
+socket.on("chat-message", (data) => {
+
+    const chatBox = document.getElementById("chatBox");
+
+    chatBox.innerHTML +=
+        <p><b>${data.user}</b>: ${data.message}</p>;
+});
+
+function sendMessage() {
+
+    const input = document.getElementById("chatInput");
+
+    socket.emit("chat-message", {
+        user: document.getElementById("loginUser").value,
+        message: input.value
+    });
+
+    input.value = "";
+}
 </script>
 
 </body>
