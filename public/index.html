@@ -158,7 +158,9 @@ socket.on("candidate", (id, candidate) => {
 socket.on("broadcaster", () => {
     socket.emit("watcher");
 });
-
+window.addEventListener("load", () => {
+    socket.emit("watcher");
+});
 socket.on("disconnectPeer", id => {
     if (peerConnections[id]) {
         peerConnections[id].close();
