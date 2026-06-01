@@ -26,14 +26,12 @@
 
 <br><br>
 
-<video id="video" width="640" height="480" autoplay muted></video>
+<video id="video" width="640" height="480" autoplay playsinline muted></video>
+
 <h3>Viewers: <span id="viewerCount">0</span></h3>
 
 <h3>Live Chat</h3>
-
-<div id="chatBox"
-style="width:640px;height:200px;border:1px solid black;overflow:auto;">
-</div>
+<div id="chatBox" style="width:640px;height:200px;border:1px solid black;overflow:auto;"></div>
 
 <br>
 
@@ -42,99 +40,17 @@ style="width:640px;height:200px;border:1px solid black;overflow:auto;">
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-
 let stream;
 const video = document.getElementById("video");
-
-async function register() {
-
-    const username = document.getElementById("regUser").value;
-    const password = document.getElementById("regPass").value;
-
-    const res = await fetch("/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username,
-            password
-        })
-    });
-
-    const data = await res.json();
-
-    alert(data.message);
-}
-
-async function login() {
-
-    const username = document.getElementById("loginUser").value;
-    const password = document.getElementById("loginPass").value;
-
-    const res = await fetch("/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username,
-            password
-        })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-        alert("Login Success");
-    }else{
-        alert("Login Failed");
-    }
-}
-
-async function startCamera() {
-
-    stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-    });
-
-    video.srcObject = stream;
-}
-
-function stopCamera() {
-
-    if(stream){
-        stream.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-}
 const socket = io();
 
-socket.on("viewer-count", (count) => {
-    document.getElementById("viewerCount").innerText = count;
-});
+const peerConnections = {};
+const config = {
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+    ]
+};
 
-socket.on("chat-message", (data) => {
-
-    const chatBox = document.getElementById("chatBox");
-
-    chatBox.innerHTML +=
-        `<p><b>${data.user}</b>: ${data.message}</p>`;
-});
-
-function sendMessage() {
-
-    const input = document.getElementById("chatInput");
-
-    socket.emit("chat-message", {
-        user: document.getElementById("loginUser").value,
-        message: input.value
-    });
-
-    input.value = "";
-}
-</script>
-
-</body>
-</html>
+async function register() {
+    const username = document.getElementById("regUser").value;
+    const password = document.getElement
