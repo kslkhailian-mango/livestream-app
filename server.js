@@ -1,3 +1,7 @@
+const mongoose = require("mongoose");
+mongoose.connect("mongodb+srv://PenglamFoundation:Zammun%40123@cluster0.d3tgnwk.mongodb.net/?appName=Cluster0")
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.log(err));
 const express = require("express");
 const session = require("express-session");
 
@@ -14,14 +18,24 @@ app.use(session({
 }));
 
 app.use(express.static("public"));
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
 
-let users = [];
+const User = mongoose.model("User", userSchema);
+
 let broadcaster = null;
 
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
     const { username, password } = req.body;
 
-    users.push({ username, password });
+    const user = new User({
+        username,
+        password
+    });
+
+    await user.save();
 
     res.json({
         success: true,
@@ -29,12 +43,13 @@ app.post("/register", (req, res) => {
     });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
-    const user = users.find(
-        u => u.username === username && u.password === password
-    );
+    const user = await User.findOne({
+        username,
+        password
+    });
 
     if (user) {
         req.session.user = user;
