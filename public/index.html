@@ -52,10 +52,8 @@ const config = {
 };
 
 async function register() {
-    const username = document.getElementById("regUser").value;
-    const password = document.getElement    const username = document.getElementById("regUser").value;
-    const password = document.getElementById("regPass").value;
-
+const username = document.getElementById("regUser").value;
+const password = document.getElementById("regPass").value;
     const res = await fetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
