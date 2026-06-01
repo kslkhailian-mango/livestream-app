@@ -2,6 +2,92 @@
 <html>
 <head>
     <title>Live Stream App</title>
+    <style>
+        body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#111;
+    color:white;
+}
+
+.navbar{
+    background:#222;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    color:#00d4ff;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.container{
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+.video-section{
+    flex:3;
+}
+
+.chat-section{
+    flex:1;
+    background:#1a1a1a;
+    padding:10px;
+    border-radius:10px;
+}
+
+video{
+    width:100%;
+    max-width:900px;
+    border-radius:15px;
+    border:2px solid #00d4ff;
+}
+
+button{
+    background:#00d4ff;
+    border:none;
+    padding:10px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+input{
+    padding:8px;
+    border-radius:5px;
+    border:none;
+}
+input{
+    padding:10px;
+    border-radius:6px;
+    border:none;
+    margin:5px;
+}
+
+button{
+    padding:10px 15px;
+    background:#00d4ff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover{
+    background:#00aacc;
+}
+
+#chatBox{
+    background:#222;
+    border:1px solid #00d4ff;
+    border-radius:10px;
+    padding:10px;
+}
+    </style>
 </head>
 <body>
 
@@ -28,6 +114,10 @@
 
 <video id="video" width="640" height="480" autoplay playsinline muted></video>
 
+
+
+
+
 <h3>Viewers: <span id="viewerCount">0</span></h3>
 
 <h3>Live Chat</h3>
@@ -35,7 +125,7 @@
 
 <br>
 
-<input type="text" id="chatInput" placeholder="Type message">
+<input type="text" id="messageInput" placeholder="Type message">
 <button onclick="sendMessage()">Send</button>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -43,7 +133,10 @@
 let stream;
 const video = document.getElementById("video");
 const socket = io();
+const params = new URLSearchParams(window.location.search);
+const roomId = params.get("room") || "main";
 
+socket.emit("join-room", roomId);
 const peerConnections = {};
 const config = {
     iceServers: [
@@ -90,7 +183,7 @@ async function startCamera() {
     });
 
     video.srcObject = stream;
-    socket.emit("broadcaster");
+    socket.emit("broadcaster", roomId);
 }
 
 function stopCamera() {
@@ -156,10 +249,11 @@ socket.on("candidate", (id, candidate) => {
 });
 
 socket.on("broadcaster", () => {
-    socket.emit("watcher");
+    socket.emit("watcher", roomId);
 });
+
 window.addEventListener("load", () => {
-    socket.emit("watcher");
+    socket.emit("watcher", roomId);
 });
 socket.on("disconnectPeer", id => {
     if (peerConnections[id]) {
@@ -174,23 +268,25 @@ socket.on("viewer-count", count => {
 
 socket.on("chat-message", data => {
     const chatBox = document.getElementById("chatBox");
-    chatBox.innerHTML += `<p><b>${data.user}</b>: ${data.message}</p>`;
+
+    chatBox.innerHTML +=
+        `<p><b>${data.username}</b>: ${data.message}</p>`;
 });
 
+const username = "test1";
+
 function sendMessage() {
-    const input = document.getElementById("chatInput");
+    const message =
+        document.getElementById("messageInput").value;
 
     socket.emit("chat-message", {
-        user: document.getElementById("loginUser").value || "Guest",
-        message: input.value
+        username: username,
+        message: message
     });
 
-    input.value = "";
+    document.getElementById("messageInput").value = "";
 }
 
-window.onunload = window.onbeforeunload = () => {
-    socket.close();
-};
 </script>
 
 </body>
