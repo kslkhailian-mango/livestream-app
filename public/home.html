@@ -250,7 +250,7 @@
         <img src="default-avatar.png" width="100%">
         <h3>Streamer 1</h3>
         <p>👀 15 Viewers</p>
-        <button onclick="location.href='index.html?room=streamer1'">
+        <button onclick="window.location.href = `/index.html?room=${room.roomId}&watch=1`;">
         Watch Live
         </button>
     </div>
@@ -259,7 +259,7 @@
         <img src="default-avatar.png" width="100%">
         <h3>Streamer 2</h3>
         <p>👀 23 Viewers</p>
-        <button onclick="location.href='index.html?room=streamer2'">
+        <button onclick="window.location.href = `/index.html?room=${room.roomId}&watch=1`;">
         Watch Live
         </button>
     </div>
@@ -268,7 +268,7 @@
         <img src="default-avatar.png" width="100%">
         <h3>Streamer 3</h3>
         <p>👀 8 Viewers</p>
-        <button onclick="location.href='index.html?room=streamer3'">
+        <button onclick="window.location.href = `/index.html?room=${room.roomId}&watch=1`;">
         Watch Live
         </button>
     </div>
@@ -299,7 +299,39 @@
 <footer>
     © 2026 Penglam Live — Built by KSL
 </footer>
+<h2>Live Rooms</h2>
 
+<div id="liveRooms"></div>
+
+<script>
+async function loadRooms() {
+    const response = await fetch('/live-rooms');
+    const rooms = await response.json();
+
+    const container = document.getElementById('liveRooms');
+    container.innerHTML = '';
+
+    rooms.forEach(room => {
+        container.innerHTML += `
+            <div style="border:1px solid cyan;padding:10px;margin:10px;">
+                <h3>${room.title}</h3>
+                <p>Streamer: ${room.streamer}</p>
+                <p>Viewers: ${room.viewers}</p>
+                <button onclick="joinRoom('${room.roomId}')">
+                    Watch Live
+                </button>
+            </div>
+        `;
+    });
+}
+
+function joinRoom(roomId) {
+    window.location.href = `/index.html?room=${roomId}`;
+}
+
+loadRooms();
+setInterval(loadRooms, 3000);
+</script>
 <script>
 function joinRoom() {
     const room = document.getElementById("roomInput").value.trim();
@@ -364,7 +396,9 @@ onclick="window.location.href='/index.html?room=${room.roomId}'">
 loadLiveRooms();
 setInterval(loadLiveRooms, 3000);
 </script>
-
+<script src="/socket.io/socket.io.js"></script>
+<script>
+</script>
 <h2 style="text-align:center;">🔴 Live Now</h2>
 <div id="liveRooms" class="live-grid"></div>
 

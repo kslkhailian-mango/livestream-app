@@ -72,17 +72,23 @@ input{
         </button>
     </div>
 </div>
-<h1 id="username">User Profile</h1>
-
+<h1>User Profile</h1>
+<h2 id="profileUsername">Loading...</h2>
 <img id="avatar" width="120" alt="avatar">
 
 <h3 id="followers">Followers: 0</h3>
 <h3 id="following">Following: 0</h3>
 <h3 id="coins">Coins: 0</h3>
-
+<button onclick="addCoins(100)">
+  +100 Coins
+</button>
 <p id="bio"></p>
 <h3>Edit Profile</h3>
+<button onclick="sendGift('Rose 🌹', 10)">Rose 🌹 +10</button>
+<button onclick="sendGift('Heart ❤️', 50)">Heart ❤️ +50</button>
+<button onclick="sendGift('Lion 🦁', 1000)">Lion 🦁 +1000</button>
 
+<div id="giftBox"></div>
 <input id="avatarInput" placeholder="Avatar image path">
 <br><br>
 
@@ -90,40 +96,50 @@ input{
 <br><br>
 
 <button onclick="updateProfile()">Save Profile</button>
+
 <button onclick="followUser()">
-    Follow
+  Follow
 </button>
+
 <button onclick="unfollowUser()">
-    Unfollow
+  Unfollow
 </button>
+<script src="/socket.io/socket.io.js"></script> 
 <script>
-async function followUser() {
+    const socket = io();
+    const username = localStorage.getItem("username");
+ socket.on("gift-received", data => {
+  document.getElementById("giftBox").innerHTML +=
+    `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
+});
+async function loadProfile() {
 
-    const res = await fetch(`/follow/${username}`, {
-        method: "POST"
-    });
-
+    const res = await fetch(`/profile/${username}`);
     const data = await res.json();
 
     if (data.success) {
+
+        document.getElementById("profileUsername").innerText =
+            data.username;
+
+        document.getElementById("avatar").src =
+            data.avatar;
+
         document.getElementById("followers").innerText =
             "Followers: " + data.followers;
-    }
-}async function unfollowUser() {
 
-    const res = await fetch(`/unfollow/${username}`, {
-        method: "POST"
-    });
+        document.getElementById("following").innerText =
+            "Following: " + data.following;
 
-    const data = await res.json();
+        document.getElementById("coins").innerText =
+            "Coins: " + data.coins;
 
-    if (data.success) {
-        document.getElementById("followers").innerText =
-            "Followers: " + data.followers;
+        document.getElementById("bio").innerText =
+            data.bio;
     }
 }
-const username = "test1";
 async function updateProfile() {
+
     const avatar = document.getElementById("avatarInput").value;
     const bio = document.getElementById("bioInput").value;
 
@@ -140,38 +156,85 @@ async function updateProfile() {
 
     const data = await res.json();
 
-    if (data.success) {
-        alert("Profile updated");
-        location.reload();
+    if(data.success){
+        alert("Profile Updated");
+        loadProfile();
     } else {
-        alert("Update failed");
+        alert("Update Failed");
     }
 }
-fetch(`/profile/${username}`)
-.then(res => res.json())
-.then(data => {
+async function followUser() {
+  const res = await fetch(`/follow/${username}`, {
+    method: "POST"
+  });
 
-    if(data.success){
+  const data = await res.json();
+  console.log("follow data:", data);
 
-        document.getElementById("username").innerText =
-            data.user.username;
+  if (data.success) {
+    document.getElementById("followers").innerText =
+      "Followers: " + data.followers;
+  } else {
+    alert("Follow failed");
+  }
+}
 
-        document.getElementById("avatar").src =
-            "/MMPENGLAM1.jpg";
+async function unfollowUser() {
+  const res = await fetch(`/unfollow/${username}`, {
+    method: "POST"
+  });
 
-        document.getElementById("followers").innerText =
-            "Followers: " + data.user.followers;
+  const data = await res.json();
+  console.log("unfollow data:", data);
 
-        document.getElementById("following").innerText =
-            "Following: " + data.user.following;
+  if (data.success) {
+    document.getElementById("followers").innerText =
+      "Followers: " + data.followers;
+  } else {
+    alert("Unfollow failed");
+  }
+}
+async function addCoins(amount) {
 
-        document.getElementById("coins").innerText =
-            "Coins: " + data.user.coins;
+  const res = await fetch(`/add-coins/${username}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      amount: amount
+    })
+  });
 
-        document.getElementById("bio").innerText =
-            data.user.bio;
-    }
-});
+  const data = await res.json();
+
+  if (data.success) {
+
+    document.getElementById("coins").innerText =
+      "Coins: " + data.coins;
+
+  } else {
+    alert("Failed");
+  }
+}
+async function sendGift(giftName, amount) {
+  const res = await fetch(`/send-gift/${username}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ giftName, amount })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("coins").innerText =
+      "Coins: " + data.coins;
+  }
+}
+
+loadProfile();
 </script>
 
 </body>

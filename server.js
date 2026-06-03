@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
 
     avatar: {
         type: String,
-        default: "/MMGPENGLAM1.png"
+        default: "/MMGPENGLAM1.jpg"
     },
 
     followers: {
@@ -98,48 +98,157 @@ app.get("/profile/:username", async (req, res) => {
     }
 
     res.json({
-        success: true,
-        user
-    });
-
+  success: true,
+  username: user.username,
+  avatar: user.avatar,
+  followers: user.followers,
+  following: user.following,
+  coins: user.coins,
+  bio: user.bio
+ });
 });
 async function followHandler(req, res) {
-    const user = await User.findOne({
-        username: req.params.username
-    });
+  try {
+    const username = req.params.username;
+
+    let user = await User.findOne({ username });
 
     if (!user) {
-        return res.json({ success: false });
+      user = new User({
+        username: username,
+        password: "1234",
+        followers: 0,
+        following: 0,
+        coins: 0
+      });
     }
 
-    user.followers += 1;
+    user.followers = (user.followers || 0) + 1;
+
     await user.save();
 
     res.json({
-        success: true,
-        followers: user.followers
+      success: true,
+      followers: user.followers
     });
-}
-app.post("/unfollow/:username", async (req, res) => {
 
-    const user = await User.findOne({
-        username: req.params.username
-    });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+}
+
+app.post("/follow/:username", followHandler);
+app.get("/follow/:username", followHandler);
+
+app.post("/unfollow/:username", async (req, res) => {
+  try {
+    const username = req.params.username;
+
+    const user = await User.findOne({ username });
 
     if (!user) {
-        return res.json({ success: false });
+      return res.json({ success: false });
     }
 
     if (user.followers > 0) {
-        user.followers -= 1;
+      user.followers -= 1;
     }
 
     await user.save();
 
     res.json({
-        success: true,
-        followers: user.followers
+      success: true,
+      followers: user.followers
     });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+});  
+app.post("/update-profile/:username", async (req, res) => {
+  try {
+    const username = req.params.username;
+    const { avatar, bio } = req.body;
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.json({ success: false });
+    }
+
+    if (avatar) user.avatar = avatar;
+    if (bio) user.bio = bio;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      avatar: user.avatar,
+      bio: user.bio
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false });
+  }  
+});
+app.post("/add-coins/:username", async (req, res) => {
+  try {
+    const username = req.params.username;
+    const { amount } = req.body;
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.json({ success: false });
+    }
+
+    user.coins += Number(amount);
+
+    await user.save();
+
+    res.json({
+      success: true,
+      coins: user.coins
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false });
+  }
+});  
+app.post("/send-gift/:username", async (req, res) => {
+  try {
+    const username = req.params.username;
+    const { amount, giftName } = req.body;
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.json({ success: false });
+    }
+
+    user.coins += Number(amount);
+    await user.save();
+
+    io.emit("gift-received", {
+      username,
+      giftName,
+      amount,
+      coins: user.coins
+    });
+
+    res.json({
+      success: true,
+      coins: user.coins
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false });
+  }  
 });
 app.get("/follow/:username", followHandler);
 app.post("/follow/:username", followHandler);
@@ -154,87 +263,99 @@ app.get("/live-rooms", (req, res) => {
     }));
 
     res.json(rooms);
-});
+});   
 io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+  console.log("User connected:", socket.id);
+socket.on("join-room", (roomId) => {
 
-    socket.on("join-room", (roomId) => {
-        socket.join(roomId);
-
-        if (!viewerCounts[roomId]) {
-            viewerCounts[roomId] = 0;
-        }
-
-        viewerCounts[roomId]++;
-        io.to(roomId).emit("viewer-count", viewerCounts[roomId]);
-    });
-
-socket.on("broadcaster", (roomId) => {
-    broadcasters[roomId] = socket.id;
+   console.log("JOIN ROOM:", roomId);
+   
+     liveRooms[roomId] = {
+     roomId: roomId,
+     title: "Live Stream",
+     streamer: "test1"
+  };
     socket.join(roomId);
 
-    liveRooms[roomId] = {
-        roomId,
-        title: roomId,
-        startedAt: new Date()
-    };
+    viewerCounts[roomId] =
+        (viewerCounts[roomId] || 0) + 1;
 
-    socket.to(roomId).emit("broadcaster");
-    io.emit("live-rooms-updated");
+    console.log("VIEWERS:", viewerCounts[roomId]);
+
+    io.to(roomId).emit(
+        "viewer-count",
+        viewerCounts[roomId]
+    );
+});
+socket.on("watcher", (roomId) => {
+  console.log("WATCHER:", roomId, socket.id);
+
+  const broadcasterId = broadcasters[roomId];
+
+  if (broadcasterId) {
+    io.to(broadcasterId).emit("watcher", socket.id);
+  }
 });
 
-    socket.on("watcher", (roomId) => {
-        socket.join(roomId);
+socket.on("offer", (viewerId, offer) => {
+  io.to(viewerId).emit("offer", offer);
+});
 
-        if (broadcasters[roomId]) {
-            io.to(broadcasters[roomId]).emit("watcher", socket.id);
-        }
-    });
+socket.on("answer", (broadcasterId, answer) => {
+  io.to(broadcasterId).emit("answer", socket.id, answer);
+});
 
-    socket.on("offer", (id, message) => {
-        io.to(id).emit("offer", socket.id, message);
-    });
-
-    socket.on("answer", (id, message) => {
-        io.to(id).emit("answer", socket.id, message);
-    });
-
-    socket.on("candidate", (id, message) => {
-        io.to(id).emit("candidate", socket.id, message);
-    });
-
-    socket.on("chat-message", (data) => {
-        io.to(data.roomId).emit("chat-message", data);
-    });
-
-    socket.on("disconnect", () => {
-        for (const roomId of socket.rooms) {
-            if (roomId !== socket.id && viewerCounts[roomId]) {
-                viewerCounts[roomId]--;
-                io.to(roomId).emit("viewer-count", viewerCounts[roomId]);
-            }
-
-            if (broadcasters[roomId] === socket.id) {
-    delete broadcasters[roomId];
-    delete liveRooms[roomId];
-    socket.to(roomId).emit("broadcaster-disconnected");
-    io.emit("live-rooms-updated");
-}
-        }
-
-        for (const roomId in broadcasters) {
-            io.to(broadcasters[roomId]).emit("disconnectPeer", socket.id);
-        }
-
-        console.log("User disconnected:", socket.id);
-    });
-socket.on("chat-message", data => {
+socket.on("ice-candidate", (targetId, candidate) => {
+    io.to(targetId).emit(
+        "ice-candidate",
+        socket.id,
+        candidate
+    );
+});
+  socket.on("chat-message", (data) => {
     io.emit("chat-message", data);
-});    
+  });
+socket.on("broadcaster", (roomId) => {
+  broadcasters[roomId] = socket.id;
+
+  liveRooms[roomId] = {
+    roomId,
+    title: "Live Stream",
+    streamer: "test1"
+  };
+
+  io.emit("live-rooms-updated");
+});
+
+  socket.on("disconnecting", () => {
+    for (const roomId of socket.rooms) {
+     
+        if (roomId !== socket.id) {
+
+            viewerCounts[roomId] =
+                Math.max((viewerCounts[roomId] || 1) - 1, 0);
+
+            io.to(roomId).emit(
+                "viewer-count",
+                viewerCounts[roomId]
+            );
+        if (liveRooms[roomId]) {
+               delete liveRooms[roomId];
+                io.emit("live-rooms-updated");
+           }
+            console.log(
+                "VIEWERS:",
+                viewerCounts[roomId]
+            );
+        }
+    }
+
+    console.log("User disconnected:", socket.id);
+});
 });
 
 const PORT = process.env.PORT || 3000;
 
 http.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

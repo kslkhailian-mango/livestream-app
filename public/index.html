@@ -89,6 +89,32 @@ button:hover{
 }
     </style>
 </head>
+<script>
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+
+    document.getElementById("video").srcObject = stream;
+  } catch (err) {
+    console.error(err);
+    alert("Camera access denied");
+  }
+} 
+ function stopCamera() {
+  const video = document.getElementById("video");
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  video.srcObject = null;
+} 
+
+</script>
 <body>
 
 <h1>My Live Stream</h1>
@@ -107,8 +133,8 @@ button:hover{
 
 <hr>
 
-<button onclick="startCamera()">Start Live</button>
-<button onclick="stopCamera()">Stop Live</button>
+<button id="startBtn" onclick="startCamera()">Start Live</button>
+<button id="stopBtn" onclick="stopCamera()">Stop Live</button>
 
 <br><br>
 
@@ -130,161 +156,179 @@ button:hover{
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-let stream;
-const video = document.getElementById("video");
 const socket = io();
-const params = new URLSearchParams(window.location.search);
-const roomId = params.get("room") || "main";
 
-socket.emit("join-room", roomId);
-const peerConnections = {};
-const config = {
-    iceServers: [
-        { urls: "stun:stun.l.google.com:19302" }
-    ]
+const params = new URLSearchParams(window.location.search);
+const roomId = params.get("room") || "room1";
+const isViewer = params.get("watch") === "1";
+
+window.addEventListener("load", () => {
+  socket.emit("join-room", roomId);
+
+   if (isViewer) {
+   console.log("WATCHER MODE", roomId);
+   socket.emit("watcher", roomId);
+
+   const startBtn = document.getElementById("startBtn");
+   const stopBtn = document.getElementById("stopBtn");
+
+   if (startBtn) startBtn.style.display = "none";
+   if (stopBtn) stopBtn.style.display = "none";
+ }
+});
+let stream;
+let peerConnection;
+
+const configuration = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
 };
 
-async function register() {
-const username = document.getElementById("regUser").value;
-const password = document.getElementById("regPass").value;
-    const res = await fetch("/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-    alert(data.message);
-}
-
-async function login() {
-    const username = document.getElementById("loginUser").value;
-    const password = document.getElementById("loginPass").value;
-
-    const res = await fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-        alert("Login Success");
-    } else {
-        alert("Login Failed");
-    }
-}
+const video = document.getElementById("video");
 
 async function startCamera() {
+  try {
     stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
+      video: true,
+      audio: true
     });
 
     video.srcObject = stream;
+    socket.emit("join-room", roomId);
     socket.emit("broadcaster", roomId);
-}
-
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-
-    Object.keys(peerConnections).forEach(id => {
-        peerConnections[id].close();
-        delete peerConnections[id];
-    });
-}
-
-socket.on("watcher", async (id) => {
-    const peerConnection = new RTCPeerConnection(config);
-    peerConnections[id] = peerConnection;
+    peerConnection = new RTCPeerConnection(configuration);
 
     stream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, stream);
+      peerConnection.addTrack(track, stream);
     });
 
     peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-            socket.emit("candidate", id, event.candidate);
-        }
+      if (event.candidate) {
+        socket.emit("ice-candidate", event.candidate);
+      }
     };
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    socket.emit("offer", id, peerConnection.localDescription);
+    console.log("Sending offer");
+    socket.emit("offer", peerConnection.localDescription);
+
+  } catch (err) {
+    console.error(err);
+    alert("Camera access denied");
+  }
+}
+
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+
+  video.srcObject = null;
+}
+
+socket.on("offer", async (description) => {
+  if (!isViewer) return;
+
+  console.log("Offer received", description);
+
+  if (!description || !description.type) return;
+
+  peerConnection = new RTCPeerConnection(configuration);
+
+  peerConnection.ontrack = event => {
+    video.srcObject = event.streams[0];
+  };
+
+  peerConnection.onicecandidate = event => {
+    if (event.candidate) {
+      socket.emit("ice-candidate", roomId, event.candidate);
+    }
+  };
+
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(description)
+  );
+
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  socket.emit("answer", roomId, peerConnection.localDescription);
 });
 
-socket.on("offer", async (id, description) => {
-    const peerConnection = new RTCPeerConnection(config);
-    peerConnections[id] = peerConnection;
+socket.on("answer", async (viewerId, description) => {
+  if (isViewer) return;
 
-    peerConnection.ontrack = event => {
-        video.srcObject = event.streams[0];
-    };
+  if (!peerConnection) return;
 
-    peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-            socket.emit("candidate", id, event.candidate);
-        }
-    };
+  if (peerConnection.signalingState !== "have-local-offer") {
+    console.log("Ignore answer, state:", peerConnection.signalingState);
+    return;
+  }
 
-    await peerConnection.setRemoteDescription(description);
-
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    socket.emit("answer", id, peerConnection.localDescription);
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(description)
+  );
 });
 
-socket.on("answer", (id, description) => {
-    peerConnections[id].setRemoteDescription(description);
-});
+socket.on("ice-candidate", async (id, candidate) => {
+    if (!candidate || !peerConnection) return;
 
-socket.on("candidate", (id, candidate) => {
-    peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
-});
-
-socket.on("broadcaster", () => {
-    socket.emit("watcher", roomId);
-});
-
-window.addEventListener("load", () => {
-    socket.emit("watcher", roomId);
-});
-socket.on("disconnectPeer", id => {
-    if (peerConnections[id]) {
-        peerConnections[id].close();
-        delete peerConnections[id];
+    try {
+        await peerConnection.addIceCandidate(candidate);
+    } catch (err) {
+        console.error("ICE ERROR", err);
     }
 });
-
 socket.on("viewer-count", count => {
     document.getElementById("viewerCount").innerText = count;
 });
+socket.on("watcher", async (viewerId) => {
+  console.log("Watcher connected, sending offer", viewerId);
 
+  if (!stream) return;
+
+  peerConnection = new RTCPeerConnection(configuration);
+
+  stream.getTracks().forEach(track => {
+    peerConnection.addTrack(track, stream);
+  });
+
+  peerConnection.onicecandidate = event => {
+    if (event.candidate) {
+      socket.emit("ice-candidate", viewerId, event.candidate);
+    }
+  };
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+
+  socket.emit("offer", viewerId, peerConnection.localDescription);
+});
 socket.on("chat-message", data => {
     const chatBox = document.getElementById("chatBox");
 
     chatBox.innerHTML +=
-        `<p><b>${data.username}</b>: ${data.message}</p>`;
+        `<p><b>${data.user}</b>: ${data.message}</p>`;
 });
-
-const username = "test1";
-
 function sendMessage() {
-    const message =
-        document.getElementById("messageInput").value;
+  const input = document.getElementById("messageInput");
 
-    socket.emit("chat-message", {
-        username: username,
-        message: message
-    });
+  socket.emit("chat-message", {
+    roomId: roomId,
+    user: localStorage.getItem("username") || "Guest",
+    message: input.value
+  });
 
-    document.getElementById("messageInput").value = "";
+  input.value = "";
 }
 
 </script>
