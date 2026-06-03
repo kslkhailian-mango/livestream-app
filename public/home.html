@@ -317,9 +317,10 @@ async function loadRooms() {
 }
 
 function joinRoom(roomId) {
-    window.location.href = `/index.html?room=${roomId}`;
+    window.location.href =
+      '/index.html?room=' + roomId + '&watch=1';
 }
-
+}
 loadRooms();
 setInterval(loadRooms, 3000);
 </script>
@@ -362,7 +363,7 @@ async function loadLiveRooms() {
 
 box.innerHTML = rooms.map(room => `
 <div class="live-card"
-onclick="window.location.href='/index.html?room=${room.roomId}'">
+onclick="window.location.href='/index.html?room=${room.roomId}&watch=1'">
 
     <div class="live-thumb">
         🎥
