@@ -271,10 +271,6 @@
 <footer>
     © 2026 Penglam Live — Built by KSL
 </footer>
-<h2>Live Rooms</h2>
-
-<div id="liveRooms"></div>
-
 <script>
 </script>
 <script>
@@ -296,7 +292,7 @@ async function loadLiveRooms() {
     const res = await fetch("/live-rooms");
     const rooms = await res.json();
 
-    const box = document.getElementById("liveRooms");
+  const box = document.getElementById("liveGrid");
 
     if (rooms.length === 0) {
         box.innerHTML = "<p>No one is live right now.</p>";
