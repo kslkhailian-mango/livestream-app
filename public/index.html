@@ -122,14 +122,18 @@ async function startCamera() {
 <h2>Register</h2>
 <input type="text" id="regUser" placeholder="Username">
 <input type="password" id="regPass" placeholder="Password">
-<button onclick="register()">Register</button>
+<button onclick="window.location.href='/regiser.html'">
+  Register
+</button>
 
 <hr>
 
 <h2>Login</h2>
 <input type="text" id="loginUser" placeholder="Username">
 <input type="password" id="loginPass" placeholder="Password">
-<button onclick="login()">Login</button>
+<button onclick="window.location.href='/login.html'">
+  Login
+</button>
 
 <hr>
 
@@ -196,7 +200,13 @@ async function startCamera() {
 
     video.srcObject = stream;
     socket.emit("join-room", roomId);
-    socket.emit("broadcaster", roomId);
+    const username =
+  localStorage.getItem("username") || "Guest";
+
+socket.emit("broadcaster", {
+  roomId,
+  streamer: username
+});
     peerConnection = new RTCPeerConnection(configuration);
 
     stream.getTracks().forEach(track => {

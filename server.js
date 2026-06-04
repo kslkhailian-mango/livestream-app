@@ -312,16 +312,14 @@ socket.on("ice-candidate", (targetId, candidate) => {
         candidate
     );
 });
-  socket.on("chat-message", (data) => {
-    io.emit("chat-message", data);
-  });
-socket.on("broadcaster", (roomId) => {
-  broadcasters[roomId] = socket.id;
+  socket.on("broadcaster", (data) => {
+  const roomId = data.roomId;
+  const streamer = data.streamer || "Guest";
 
   liveRooms[roomId] = {
     roomId,
-    title: "Live Stream",
-    streamer: "test1"
+    title: streamer + " Live",
+    streamer
   };
 
   io.emit("live-rooms-updated");
