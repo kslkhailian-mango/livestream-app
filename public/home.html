@@ -226,48 +226,23 @@
 
 <div class="navbar">
     <div class="logo">🔥 Penglam Live</div>
-    <button class="nav-btn" onclick="goMainRoom()">Start Now</button>
+    <button class="nav-btn" onclick="goMainRoom()">🔴 Go Live</button>
 </div>
 <div class="hero">
-    <h1>Go Live. Chat. Connect.</h1>
-    <p>Create your own live room and stream like Bigo / TikTok Live.</p>
+    <h1>Welcome to Penglam Live</h1>
+    <p>Watch live streams or start your own live broadcast.</p>
 </div>
     <button onclick="goRegister()">Register</button>
     <button onclick="goLogin()">Login</button>
     <button onclick="goProfile()">Profile</button>
-<div class="card">
-    <h2>Create or Join Live Room</h2>
 
-    <input type="text" id="roomInput" placeholder="Enter room name e.g. gaming">
-
-    <button class="main-btn" onclick="joinRoom()">Join Room</button>
-    <button class="main-btn secondary-btn" onclick="createRoom()">Create My Live Room</button>
 </div>
 
 <h2 class="section-title">🔥 Live Now</h2>
 
 <div id="liveGrid" class="live-grid"></div>
 </div>
-<div class="features">
-    <div class="feature">
-        <h3>🎥 Live Video</h3>
-        <p>Stream from camera using WebRTC.</p>
-    </div>
 
-    <div class="feature">
-        <h3>💬 Live Chat</h3>
-        <p>Talk with viewers in real-time.</p>
-    </div>
-
-    <div class="feature">
-        <h3>👥 Rooms</h3>
-        <p>Multiple streamers with separate rooms.</p>
-    </div>
-
-    <div class="feature">
-        <h3>📱 Mobile Ready</h3>
-        <p>Watch from phone or computer.</p>
-    </div>
 </div>
 
 <footer>
@@ -279,15 +254,8 @@
 function goRegister() {
     window.location.href = "/register.html";
 }
-
 function goLogin() {
-    const username = localStorage.getItem("username");
-
-    if (username) {
-        window.location.href = "/profile.html";
-    } else {
-        window.location.href = "/login.html";
-    }
+    window.location.href = "/profile.html";
 }
 
 function goProfile() {
@@ -305,7 +273,15 @@ function createRoom() {
 }
 
 function goMainRoom() {
-    window.location.href = "/index.html?room=main";
+    const username = localStorage.getItem("username");
+
+    if (!username) {
+        alert("Please login first");
+        window.location.href = "/login.html";
+        return;
+    }
+
+    window.location.href = "/index.html?room=" + encodeURIComponent(username);
 }
 async function loadLiveRooms() {
     const res = await fetch("/live-rooms");
