@@ -352,7 +352,7 @@ socket.on("ice-candidate", (targetId, candidate) => {
   socket.on("broadcaster", (data) => {
   const roomId = data.roomId;
   const streamer = data.streamer || "Guest";
-
+  broadcasters[roomId] = socket.id;
   liveRooms[roomId] = {
   roomId,
   title: streamer + " Live",
