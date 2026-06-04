@@ -294,13 +294,13 @@ const broadcasters = {};
 const viewerCounts = {};
 const liveRooms = {};
 app.get("/live-rooms", (req, res) => {
-    const rooms = Object.values(liveRooms).map(room => ({
-        ...room,
-        viewers: viewerCounts[room.roomId] || 0
-    }));
+  const rooms = Object.values(liveRooms).map(room => ({
+    ...room,
+    viewers: viewerCounts[room.roomId] || 0
+  }));
 
-    res.json(rooms);
-});   
+  res.json(rooms);
+});  
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 socket.on("join-room", (roomId) => {
@@ -354,11 +354,11 @@ socket.on("ice-candidate", (targetId, candidate) => {
   const streamer = data.streamer || "Guest";
 
   liveRooms[roomId] = {
-    roomId,
-    title: streamer + " Live",
-    streamer
-  };
-
+  roomId,
+  title: streamer + " Live",
+  streamer,
+  avatar: data.avatar || "/default-avatar.png"
+};
   io.emit("live-rooms-updated");
 });
 

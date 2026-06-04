@@ -205,7 +205,8 @@ async function startCamera() {
 
 socket.emit("broadcaster", {
   roomId,
-  streamer: username
+  streamer: username,
+  avatar: localStorage.getItem("avatar") || "/default-avatar.png"
 });
     peerConnection = new RTCPeerConnection(configuration);
 

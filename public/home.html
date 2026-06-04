@@ -304,7 +304,7 @@ box.innerHTML = rooms.map(room => `
 onclick="window.location.href='/index.html?room=${room.roomId}&watch=1'">
 
     <div class="live-thumb">
-        🎥
+        🎥<img src="${room.avatar || '/default-avatar.png'}" width="60" height="60">
     </div>
 
     <div class="live-info">

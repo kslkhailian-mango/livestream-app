@@ -3,12 +3,7 @@
 <head>
     <title>Profile</title>
     <style>
-        body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#111;
-    color:white;
-}
+
 
 .navbar{
     background:#222;
@@ -61,6 +56,52 @@ input{
     border-radius:5px;
     border:none;
 }
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
+  min-height:100vh;
+}
+
+.profile-card{
+  width:350px;
+  margin:40px auto;
+  padding:25px;
+  text-align:center;
+  background:#1b1b1b;
+  border-radius:18px;
+  box-shadow:0 0 20px cyan;
+}
+
+.stats{
+  display:flex;
+  justify-content:space-between;
+  margin:20px 0;
+}
+
+.stats div{
+  background:#222;
+  padding:10px;
+  border-radius:12px;
+  width:30%;
+}
+
+button{
+  margin:6px;
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  background:cyan;
+  cursor:pointer;
+}
+
+textarea{
+  width:90%;
+  height:70px;
+  border-radius:8px;
+  padding:10px;
+}
 </style>
 </head>
 <body>
@@ -70,32 +111,60 @@ input{
         <button onclick="location.href='profile.html'">
             Profile
         </button>
+        <button onclick="logout()">Logout</button>
     </div>
 </div>
-<h1>User Profile</h1>
-<h2 id="profileUsername">Loading...</h2>
-<img
-  id="avatar"
-  src="/default-avatar.png"
-  width="120"
-  height="120"
-  alt="avatar"
-  style="border-radius:50%; object-fit:cover;"
->
+<div class="profile-card">
 
-<h3 id="followers">Followers: 0</h3>
-<h3 id="following">Following: 0</h3>
-<h3 id="coins">Coins: 0</h3>
-<button onclick="addCoins(100)">
-  +100 Coins
-</button>
-<p id="bio"></p>
-<button onclick="sendGift('Rose 🌹', 10)">Rose 🌹 +10</button>
-<button onclick="sendGift('Heart ❤️', 50)">Heart ❤️ +50</button>
-<button onclick="sendGift('Lion 🦁', 1000)">Lion 🦁 +1000</button>
-<h3>Edit Profile</h3>
-<div id="giftBox"></div>
-<input type="file" id="avatarFile">
+  <img
+    id="avatar"
+    src="/default-avatar.png"
+    width="130"
+    height="130"
+    alt="avatar"
+    style="border-radius:50%; object-fit:cover;"
+  >
+
+  <h2 id="profileUsername">Loading...</h2>
+  <p id="bio"></p>
+
+  <div class="stats">
+    <div><h3 id="followers">0</h3><p>Followers</p></div>
+    <div><h3 id="following">0</h3><p>Following</p></div>
+    <div><h3 id="coins">0</h3><p>Coins</p></div>
+  </div>
+
+  <button onclick="addCoins(100)">+100 Coins</button>
+
+  <h3>Edit Profile</h3>
+
+  <input type="file" id="avatarFile">
+  <button onclick="uploadAvatar()">Upload Photo</button>
+
+  <br><br>
+
+  <textarea id="bioInput" placeholder="Write your bio"></textarea>
+  <br>
+  <h3>Send Gift</h3>
+
+<div id="giftBox">
+  <button onclick="sendGift('Rose 🌹',10)">
+    Rose 🌹 +10
+  </button>
+
+  <button onclick="sendGift('Heart 💗',50)">
+    Heart 💗 +50
+  </button>
+
+  <button onclick="sendGift('Lion 🦁',1000)">
+    Lion 🦁 +1000
+  </button>
+</div>
+  <button onclick="updateProfile()">Save Profile</button>
+  <button onclick="followUser()">Follow</button>
+  <button onclick="unfollowUser()">Unfollow</button>
+
+</div>
 
 <button onclick="uploadAvatar()">
     Upload Photo
@@ -272,9 +341,13 @@ async function uploadAvatar() {
 
         document.getElementById("avatar").src =
             data.avatar;
-
+        localStorage.setItem("avatar", data.avatar);
         alert("Photo uploaded!");
     }
+}
+function logout() {
+    localStorage.clear();
+    window.location.href = "/login.html";
 }
 </script>
 
