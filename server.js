@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const session = require("express-session");
-
+const multer = require("multer");
+const path = require("path");
 mongoose.connect("mongodb+srv://PenglamFoundation:Zammun%40123@cluster0.d3tgnwk.mongodb.net/test?retryWrites=true&w=majority")
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
@@ -51,8 +52,33 @@ const userSchema = new mongoose.Schema({
         default: ""
     }
 });
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
+const storage = multer.diskStorage({
+  destination: "public/uploads",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
 const User = mongoose.model("User", userSchema);
+
+app.post("/upload-avatar", upload.single("avatar"), async (req, res) => {
+  const { username } = req.body;
+
+  const avatarPath = "/uploads/" + req.file.filename;
+
+  await User.findOneAndUpdate(
+    { username },
+    { avatar: avatarPath }
+  );
+
+  res.json({
+    success: true,
+    avatar: avatarPath
+  });
+});
 
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
