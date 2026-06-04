@@ -40,7 +40,7 @@ async function login() {
     if (data.success) {
   localStorage.setItem("username", data.username || username);
   alert("Login success");
-  window.location.href = "/home.html";
+  window.location.href = "/profile.html";
 } else {
   alert("Login failed");
 }
