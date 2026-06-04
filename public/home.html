@@ -313,9 +313,9 @@
   const data = await res.json();
 
   if (data.success) {
-    localStorage.setItem("username", username);
-    alert("Login success");
-    window.location.href = "/profile.html";
+  localStorage.setItem("username", username);
+  alert("Login success");
+  window.location.href = "/home.html";
   } else {
     alert("Login failed");
   }
