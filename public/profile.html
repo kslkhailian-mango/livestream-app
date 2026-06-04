@@ -160,9 +160,6 @@ textarea{
     Lion 🦁 +1000
   </button>
 </div>
-  <button onclick="updateProfile()">Save Profile</button>
-  <button onclick="followUser()">Follow</button>
-  <button onclick="unfollowUser()">Unfollow</button>
 
 </div>
 
@@ -221,9 +218,8 @@ async function loadProfile() {
     }
 }
 async function updateProfile() {
-
-    const avatar = document.getElementById("avatarInput").value;
     const bio = document.getElementById("bioInput").value;
+    const username = localStorage.getItem("username");
 
     const res = await fetch(`/update-profile/${username}`, {
         method: "POST",
@@ -231,14 +227,13 @@ async function updateProfile() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            avatar,
             bio
         })
     });
 
     const data = await res.json();
 
-    if(data.success){
+    if (data.success) {
         alert("Profile Updated");
         loadProfile();
     } else {
