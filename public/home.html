@@ -217,7 +217,40 @@
     gap:25px;
     flex-wrap:wrap;
 }
+.hero-login{
+  width:320px;
+  margin:30px auto;
+  padding:20px;
+  background:rgba(255,255,255,0.12);
+  border-radius:18px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 18px rgba(0,255,255,0.5);
+  text-align:center;
+}
 
+.hero-login input{
+  width:90%;
+  padding:12px;
+  margin:8px 0;
+  border:none;
+  border-radius:10px;
+}
+
+.hero-login button{
+  width:95%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#ff4d94,#00eaff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.hero-login a{
+  color:#00eaff;
+  font-weight:bold;
+}
     </style>
     
 </head>
@@ -232,10 +265,19 @@
     <h1>Welcome to Penglam Live</h1>
     <p>Watch live streams or start your own live broadcast.</p>
 </div>
-    <button onclick="goRegister()">Register</button>
-    <button onclick="goLogin()">Login</button>
-    <button onclick="goProfile()">Profile</button>
+  <div class="hero-login">
+  <h2>Join Penglam Live</h2>
 
+  <input type="text" id="loginUser" placeholder="Username">
+  <input type="password" id="loginPass" placeholder="Password">
+
+  <button onclick="quickLogin()">Login & Profile</button>
+
+  <p>
+    No account?
+    <a href="/register.html">Register</a>
+  </p>
+</div>  
 </div>
 
 <h2 class="section-title">🔥 Live Now</h2>
@@ -251,6 +293,33 @@
 <script>
 </script>
 <script>
+    async function quickLogin() {
+  const username = document.getElementById("loginUser").value.trim();
+  const password = document.getElementById("loginPass").value.trim();
+
+  if (!username || !password) {
+    alert("Please enter username and password");
+    return;
+  }
+
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    localStorage.setItem("username", username);
+    alert("Login success");
+    window.location.href = "/profile.html";
+  } else {
+    alert("Login failed");
+  }
+}
 function goRegister() {
     window.location.href = "/register.html";
 }
