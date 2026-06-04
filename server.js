@@ -3,6 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 mongoose.connect("mongodb+srv://PenglamFoundation:Zammun%40123@cluster0.d3tgnwk.mongodb.net/test?retryWrites=true&w=majority")
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
 
     avatar: {
         type: String,
-        default: "/MMGPENGLAM1.jpg"
+        default: "/default-avatar.png"
     },
 
     followers: {
@@ -53,7 +54,9 @@ const userSchema = new mongoose.Schema({
     }
 });
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-
+if (!fs.existsSync("public/uploads")) {
+    fs.mkdirSync("public/uploads", { recursive: true });
+}
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "public/uploads");
@@ -67,19 +70,29 @@ const upload = multer({ storage });
 const User = mongoose.model("User", userSchema);
 
 app.post("/upload-avatar", upload.single("avatar"), async (req, res) => {
-  const { username } = req.body;
+    try {
+        const { username } = req.body;
 
-  const avatarPath = "/uploads/" + req.file.filename;
+        if (!req.file) {
+            return res.json({ success: false, message: "No file uploaded" });
+        }
 
-  await User.findOneAndUpdate(
-    { username },
-    { avatar: avatarPath }
-  );
+        const avatarPath = "/uploads/" + req.file.filename;
 
-  res.json({
-    success: true,
-    avatar: avatarPath
-  });
+        await User.findOneAndUpdate(
+            { username },
+            { avatar: avatarPath }
+        );
+
+        res.json({
+            success: true,
+            avatar: avatarPath
+        });
+
+    } catch (err) {
+        console.log("UPLOAD ERROR:", err);
+        res.status(500).json({ success: false });
+    }
 });
 
 app.post("/register", async (req, res) => {
