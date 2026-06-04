@@ -69,21 +69,17 @@ app.post("/register", async (req, res) => {
         message: "Registered"
     });
 });
-
 app.post("/login", async (req, res) => {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    const user = await User.findOne({
-        username,
-        password
-    });
+  const user = await User.findOne({ username, password });
 
-    if (user) {
-        req.session.user = user;
-        res.json({ success: true });
-    } else {
-        res.json({ success: false });
-    }
+  if (user) {
+    req.session.user = user;
+    res.json({ success: true, username: user.username });
+  } else {
+    res.json({ success: false });
+  }
 });
 app.get("/profile/:username", async (req, res) => {
 

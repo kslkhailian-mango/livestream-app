@@ -37,19 +37,13 @@ async function login() {
 
     const data = await res.json();
 
-    if(data.success){
-
-        localStorage.setItem(
-            "username",
-            username
-        );
-
-        alert("Login Success");
-
-        location.href="/index.html";
-    }else{
-        alert("Login Failed");
-    }
+    if (data.success) {
+  localStorage.setItem("username", data.username || username);
+  alert("Login success");
+  window.location.href = "/home.html";
+} else {
+  alert("Login failed");
+}
 }
 </script>
 
