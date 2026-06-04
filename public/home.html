@@ -346,11 +346,12 @@ function goMainRoom() {
 
     if (!username) {
         alert("Please login first");
-        window.location.href = "/login.html";
+        document.getElementById("loginUser").focus();
         return;
     }
 
-    window.location.href = "/index.html?room=" + encodeURIComponent(username);
+    window.location.href =
+        "/index.html?room=" + encodeURIComponent(username);
 }
 async function loadLiveRooms() {
     const res = await fetch("/live-rooms");
