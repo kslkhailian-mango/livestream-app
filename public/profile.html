@@ -74,7 +74,14 @@ input{
 </div>
 <h1>User Profile</h1>
 <h2 id="profileUsername">Loading...</h2>
-<img id="avatar" width="120" alt="avatar">
+<img
+  id="avatar"
+  src="/MMGPENGLAM1.jpg"
+  width="120"
+  height="120"
+  alt="avatar"
+  style="border-radius:50%; object-fit:cover;"
+>
 
 <h3 id="followers">Followers: 0</h3>
 <h3 id="following">Following: 0</h3>
@@ -89,7 +96,13 @@ input{
 <button onclick="sendGift('Lion 🦁', 1000)">Lion 🦁 +1000</button>
 
 <div id="giftBox"></div>
-<input id="avatarInput" placeholder="Avatar image path">
+<input type="file" id="avatarFile">
+
+<button onclick="uploadAvatar()">
+    Upload Photo
+</button>
+
+<br><br>
 <br><br>
 
 <textarea id="bioInput" placeholder="Write your bio"></textarea>
@@ -112,6 +125,7 @@ input{
   document.getElementById("giftBox").innerHTML +=
     `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
 });
+
 async function loadProfile() {
 
     const res = await fetch(`/profile/${username}`);
@@ -235,6 +249,34 @@ async function sendGift(giftName, amount) {
 }
 
 loadProfile();
+async function uploadAvatar() {
+
+    const file =
+        document.getElementById("avatarFile").files[0];
+
+    const username =
+        localStorage.getItem("username");
+
+    const formData = new FormData();
+
+    formData.append("avatar", file);
+    formData.append("username", username);
+
+    const res = await fetch("/upload-avatar", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+        document.getElementById("avatar").src =
+            data.avatar;
+
+        alert("Photo uploaded!");
+    }
+}
 </script>
 
 </body>
