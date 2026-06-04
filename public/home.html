@@ -232,7 +232,9 @@
     <h1>Go Live. Chat. Connect.</h1>
     <p>Create your own live room and stream like Bigo / TikTok Live.</p>
 </div>
-
+    <button onclick="goRegister()">Register</button>
+    <button onclick="goLogin()">Login</button>
+    <button onclick="goProfile()">Profile</button>
 <div class="card">
     <h2>Create or Join Live Room</h2>
 
@@ -274,6 +276,23 @@
 <script>
 </script>
 <script>
+function goRegister() {
+    window.location.href = "/register.html";
+}
+
+function goLogin() {
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        window.location.href = "/profile.html";
+    } else {
+        window.location.href = "/login.html";
+    }
+}
+
+function goProfile() {
+    window.location.href = "/profile.html";
+}    
 function createRoom() {
     const room = document.getElementById("roomInput").value.trim();
 
