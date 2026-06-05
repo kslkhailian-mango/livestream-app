@@ -166,9 +166,9 @@ const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room") || "room1";
 const isViewer = params.get("watch") === "1";
 
-const username = localStorage.getItem("username");
+const loggedInUser = localStorage.getItem("username");
 
-if (!isViewer && !username) {
+if (!isViewer && !loggedInUser) {
     alert("Please login first to go live");
     window.location.href = "/home.html";
 }
@@ -349,13 +349,8 @@ function sendMessage() {
 
     if (!message) return;
 
-    if (isViewer && !username) {
-        alert("Please login to chat");
-        return;
-    }
-
     if (!username) {
-        alert("Please login first");
+        alert("Please login to chat");
         return;
     }
 
