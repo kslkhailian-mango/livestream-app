@@ -166,6 +166,13 @@ const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room") || "room1";
 const isViewer = params.get("watch") === "1";
 
+const username = localStorage.getItem("username");
+
+if (!isViewer && !username) {
+    alert("Please login first to go live");
+    window.location.href = "/home.html";
+}
+
 window.addEventListener("load", () => {
   socket.emit("join-room", roomId);
 
@@ -200,19 +207,19 @@ async function startCamera() {
         return;
     }
 
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    });
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
 
-    video.srcObject = stream;
+        video.srcObject = stream;
 
-socket.emit("broadcaster", {
-  roomId,
-  streamer: username,
-  avatar: localStorage.getItem("avatar") || "/default-avatar.png"
-});
+        socket.emit("broadcaster", {
+            roomId,
+            streamer: username,
+            avatar: localStorage.getItem("avatar") || "/default-avatar.png"
+        });
     peerConnection = new RTCPeerConnection(configuration);
 
     stream.getTracks().forEach(track => {
@@ -342,8 +349,13 @@ function sendMessage() {
 
     if (!message) return;
 
-    if (!username) {
+    if (isViewer && !username) {
         alert("Please login to chat");
+        return;
+    }
+
+    if (!username) {
+        alert("Please login first");
         return;
     }
 
