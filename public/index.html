@@ -192,6 +192,14 @@ const configuration = {
 const video = document.getElementById("video");
 
 async function startCamera() {
+    const username = localStorage.getItem("username");
+
+    if (!username) {
+        alert("Please login first to go live");
+        window.location.href = "/home.html";
+        return;
+    }
+
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       video: true,
@@ -199,9 +207,6 @@ async function startCamera() {
     });
 
     video.srcObject = stream;
-    socket.emit("join-room", roomId);
-    const username =
-  localStorage.getItem("username") || "Guest";
 
 socket.emit("broadcaster", {
   roomId,
