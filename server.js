@@ -361,7 +361,9 @@ socket.on("ice-candidate", (targetId, candidate) => {
 };
   io.emit("live-rooms-updated");
 });
-
+socket.on("chat-message", (data) => {
+    io.to(data.roomId).emit("chat-message", data);
+});
   socket.on("disconnecting", () => {
     for (const roomId of socket.rooms) {
      

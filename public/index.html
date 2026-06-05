@@ -331,15 +331,24 @@ socket.on("chat-message", data => {
         `<p><b>${data.user}</b>: ${data.message}</p>`;
 });
 function sendMessage() {
-  const input = document.getElementById("messageInput");
+    const input = document.getElementById("messageInput");
+    const message = input.value.trim();
+    const username = localStorage.getItem("username");
 
-  socket.emit("chat-message", {
-    roomId: roomId,
-    user: localStorage.getItem("username") || "Guest",
-    message: input.value
-  });
+    if (!message) return;
 
-  input.value = "";
+    if (!username) {
+        alert("Please login to chat");
+        return;
+    }
+
+    socket.emit("chat-message", {
+        roomId: roomId,
+        user: username,
+        message: message
+    });
+
+    input.value = "";
 }
 
 </script>
