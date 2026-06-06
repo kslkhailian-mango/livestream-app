@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Summary</title>
+  <style>
+    body {
+      background: #111827;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .card {
+      max-width: 400px;
+      margin: auto;
+      background: #1f2937;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 0 20px #00eaff;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #00eaff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Live Ended</h1>
+    <h2 id="streamerName">Streamer</h2>
+
+    <p id="roomName"></p>
+    <p id="liveTime">Live Time: 0 minutes</p>
+    <p id="viewerCount">Viewers: 0</p>
+
+    <button onclick="goProfile()">Back to Profile</button>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+
+  document.getElementById("streamerName").innerText =
+    params.get("streamer") || "Streamer";
+
+  document.getElementById("roomName").innerText =
+    "Room: " + (params.get("room") || "");
+
+  document.getElementById("liveTime").innerText =
+    "Live Time: " + (params.get("minutes") || "0") + " minutes";
+
+  document.getElementById("viewerCount").innerText =
+    "Viewers: " + (params.get("viewers") || "0");
+
+  function goProfile() {
+    window.location.href = "/profile.html";
+  }
+</script>
+
+</body>
+</html>

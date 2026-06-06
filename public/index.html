@@ -90,12 +90,14 @@ button:hover{
     </style>
 </head>
 <script>
+  let liveStartTime = null;
 async function startCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true
     });
+    liveStartTime = Date.now();
 
     document.getElementById("video").srcObject = stream;
   } catch (err) {
@@ -103,16 +105,29 @@ async function startCamera() {
     alert("Camera access denied");
   }
 } 
- function stopCamera() {
-  const video = document.getElementById("video");
+function stopLive() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
 
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
 
-  video.srcObject = null;
-} 
+    socket.emit("stop-live", roomId);
+
+    const username = localStorage.getItem("username") || "Streamer";
+    const minutes = liveStartTime
+        ? Math.max(1, Math.floor((Date.now() - liveStartTime) / 60000))
+        : 0;
+
+    const viewerText = document.getElementById("viewerCount")?.innerText || "0";
+    const viewers = viewerText.replace(/\D/g, "") || "0";
+
+    window.location.href =
+        `/live-summary.html?room=${encodeURIComponent(roomId)}&streamer=${encodeURIComponent(username)}&minutes=${minutes}&viewers=${viewers}`;
+}
 
 </script>
 <body>
