@@ -364,6 +364,15 @@ socket.on("ice-candidate", (targetId, candidate) => {
 socket.on("chat-message", (data) => {
     io.to(data.roomId).emit("chat-message", data);
 });
+socket.on("stop-live", (roomId) => {
+    console.log("STOP LIVE:", roomId);
+
+    delete liveRooms[roomId];
+    delete broadcasters[roomId];
+    delete viewerCounts[roomId];
+
+    io.emit("live-rooms-updated");
+});
   socket.on("disconnecting", () => {
     for (const roomId of socket.rooms) {
      

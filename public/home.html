@@ -176,6 +176,7 @@
             text-align: center;
             color: #bbb;
             padding: 30px;
+            margin-top: 60px;
         }
  .card{
     background:#222;
@@ -255,17 +256,16 @@
     
 </head>
 <body>
-<body>
 
 <div class="navbar">
-    <div class="logo">🔥 Penglam Live</div>
+    <div class="logo">🔥 Penglam Live</div>  
     <button class="nav-btn" onclick="goMainRoom()">🔴 Go Live</button>
 </div>
 <div class="hero">
     <h1>Welcome to Penglam Live</h1>
     <p>Watch live streams or start your own live broadcast.</p>
 </div>
-  <div class="hero-login">
+  <div class="hero-login" id="loginBox">
   <h2>Join Penglam Live</h2>
 
   <input type="text" id="loginUser" placeholder="Username">
@@ -293,6 +293,13 @@
 <script>
 </script>
 <script>
+window.onload = function() {
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        document.getElementById("loginBox").style.display = "none";
+    }
+}
     async function quickLogin() {
   const username = document.getElementById("loginUser").value.trim();
   const password = document.getElementById("loginPass").value.trim();
@@ -311,14 +318,12 @@
   });
 
   const data = await res.json();
-
-  if (data.success) {
-  localStorage.setItem("username", username);
-  alert("Login success");
-  window.location.href = "/home.html";
-  } else {
-    alert("Login failed");
-  }
+    if (data.success) {
+        localStorage.setItem("username", username);
+        window.location.href = "/profile.html";
+    } else {
+        alert(data.message || "Login failed");
+    }
 }
 function goRegister() {
     window.location.href = "/register.html";
@@ -330,22 +335,11 @@ function goLogin() {
 function goProfile() {
     window.location.href = "/profile.html";
 }    
-function createRoom() {
-    const room = document.getElementById("roomInput").value.trim();
-
-    if (!room) {
-        alert("Enter your live room name first");
-        return;
-    }
-
-    window.location.href = "/index.html?room=" + encodeURIComponent(room);
-}
 
 function goMainRoom() {
     const username = localStorage.getItem("username");
 
     if (!username) {
-        alert("Please login first");
         document.getElementById("loginUser").focus();
         return;
     }

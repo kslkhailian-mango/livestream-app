@@ -153,8 +153,8 @@ function stopLive() {
 <hr>
 
 <button id="startBtn" onclick="startCamera()">Start Live</button>
-<button id="stopBtn" onclick="stopCamera()">Stop Live</button>
-
+<button id="stopBtn" onclick="stopLive()">Stop Live</button>
+<button id="profileBtn" onclick="goProfile()">Profile</button>
 <br><br>
 
 <video id="video" width="640" height="480" autoplay playsinline muted></video>
@@ -230,6 +230,11 @@ async function startCamera() {
 
         video.srcObject = stream;
 
+        const profileBtn = document.getElementById("profileBtn");
+             if (profileBtn) {
+             profileBtn.disabled = true;
+          }
+
         socket.emit("broadcaster", {
             roomId,
             streamer: username,
@@ -272,7 +277,9 @@ function stopCamera() {
 
   video.srcObject = null;
 }
-
+function goProfile() {
+    window.location.href = "/profile.html";
+}
 socket.on("offer", async (description) => {
   if (!isViewer) return;
 

@@ -106,13 +106,13 @@ textarea{
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">LiveStream App</div>
-    <div>
-        <button onclick="location.href='profile.html'">
-            Profile
-        </button>
-        <button onclick="logout()">Logout</button>
-    </div>
+  <div class="logo">🔥 Penglam Live</div>
+
+  <div>
+    <button onclick="goHome()">Home</button>
+    <button onclick="goLive()">Go Live</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 </div>
 <div class="profile-card">
 
@@ -145,6 +145,9 @@ textarea{
 
   <textarea id="bioInput" placeholder="Write your bio"></textarea>
   <br>
+  <button onclick="updateProfile()">
+    Save Bio
+</button>
   <h3>Send Gift</h3>
 
 <div id="giftBox">
@@ -163,46 +166,59 @@ textarea{
 
 </div>
 
-<button onclick="uploadAvatar()">
-    Upload Photo
-</button>
-
-<br><br>
-<br><br>
-
-<textarea id="bioInput" placeholder="Write your bio"></textarea>
-<br><br>
-
-<button onclick="updateProfile()">Save Profile</button>
-
-<button onclick="followUser()">
-  Follow
-</button>
-
-<button onclick="unfollowUser()">
-  Unfollow
-</button>
 <script src="/socket.io/socket.io.js"></script> 
 <script>
     const socket = io();
+
+const username = localStorage.getItem("username");
+
+function goHome() {
+    window.location.href = "/home.html";
+}
+
+function goLive() {
     const username = localStorage.getItem("username");
- socket.on("gift-received", data => {
-  document.getElementById("giftBox").innerHTML +=
-    `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
+
+    if (!username) {
+        window.location.href = "/home.html";
+        return;
+    }
+
+    window.location.href =
+        "/index.html?room=" + encodeURIComponent(username);
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = "/home.html";
+}
+
+socket.on("gift-received", data => {
+    const giftBox = document.getElementById("giftBox");
+
+    if (giftBox) {
+        giftBox.innerHTML +=
+            `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
+    }
 });
 
 async function loadProfile() {
 
     const res = await fetch(`/profile/${username}`);
     const data = await res.json();
+    console.log(data);
 
     if (data.success) {
 
         document.getElementById("profileUsername").innerText =
             data.username;
 
-        document.getElementById("avatar").src =
-            data.avatar;
+        const avatarImg = document.getElementById("avatar");
+       avatarImg.src = data.avatar || "/default-avatar.png";
+       avatarImg.onerror = function () {
+        this.onerror = null;
+       this.src = "/default-avatar.png";
+       };
 
         document.getElementById("followers").innerText =
             "Followers: " + data.followers;
@@ -339,10 +355,6 @@ async function uploadAvatar() {
         localStorage.setItem("avatar", data.avatar);
         alert("Photo uploaded!");
     }
-}
-function logout() {
-    localStorage.clear();
-    window.location.href = "/home.html";
 }
 </script>
 
