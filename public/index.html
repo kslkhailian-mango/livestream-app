@@ -218,7 +218,7 @@ async function startCamera() {
   }
 }
 
-function stopCamera() {
+function stopLive() {
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
     stream = null;
@@ -229,7 +229,7 @@ function stopCamera() {
     peerConnection = null;
   }
   socket.emit("stop-live", roomId);
-  
+
   video.srcObject = null;
 }
 function goProfile() {
