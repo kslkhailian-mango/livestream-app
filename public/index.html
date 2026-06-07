@@ -170,7 +170,7 @@ window.addEventListener("load", () => {
 });
 let stream;
 let peerConnection;
-
+let remoteStreamSet = false;
 const configuration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" }
@@ -237,24 +237,32 @@ function goProfile() {
 socket.on("offer", async (description) => {
   if (!isViewer) return;
 
+  remoteStreamSet = false;
+
   console.log("Offer received", description);
 
   if (!description || !description.type) return;
    peerConnection = new RTCPeerConnection(configuration);
    peerConnection.ontrack = event => {
-     console.log("TRACK RECEIVED");
+  console.log("TRACK RECEIVED");
 
-    video.srcObject = event.streams[0];
-    video.muted = true;
-    video.autoplay = true;
-    video.playsInline = true;
+  if (remoteStreamSet) return;
 
+  remoteStreamSet = true;
+
+  video.srcObject = event.streams[0];
+  video.muted = true;
+  video.autoplay = true;
+  video.playsInline = true;
+
+  video.onloadedmetadata = () => {
     video.play()
-     .then(() => console.log("PLAY OK"))
-     .catch(err => console.log("PLAY ERROR", err));
+      .then(() => console.log("PLAY OK"))
+      .catch(err => console.log("PLAY ERROR", err));
+  };
 
-    console.log("VIDEO SET");
- };
+  console.log("VIDEO SET");
+};
 
    peerConnection.onicecandidate = event => {
     if (event.candidate) {
