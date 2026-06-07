@@ -304,7 +304,7 @@ socket.on("offer", async (description) => {
   console.log("Offer received", description);
 
   if (!description || !description.type) return;
-
+   peerConnection = new RTCPeerConnection(configuration);
   peerConnection.ontrack = event => {
     console.log("TRACK RECEIVED");
 
