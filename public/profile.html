@@ -1,110 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Profile</title>
-    <style>
+  <title>Profile</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#111;
+      color:white;
+      min-height:100vh;
+    }
 
+    .navbar{
+      background:#222;
+      padding:15px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
 
-.navbar{
-    background:#222;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
+    .logo{
+      color:#00d4ff;
+      font-size:24px;
+      font-weight:bold;
+    }
 
-.logo{
-    color:#00d4ff;
-    font-size:24px;
-    font-weight:bold;
-}
+    .profile-card{
+      width:350px;
+      margin:40px auto;
+      padding:25px;
+      text-align:center;
+      background:#1b1b1b;
+      border-radius:18px;
+      box-shadow:0 0 20px cyan;
+    }
 
-.container{
-    display:flex;
-    gap:20px;
-    padding:20px;
-}
+    .stats{
+      display:flex;
+      justify-content:space-between;
+      margin:20px 0;
+    }
 
-.video-section{
-    flex:3;
-}
+    .stats div{
+      background:#222;
+      padding:10px;
+      border-radius:12px;
+      width:30%;
+    }
 
-.chat-section{
-    flex:1;
-    background:#1a1a1a;
-    padding:10px;
-    border-radius:10px;
-}
+    button{
+      margin:6px;
+      padding:10px 14px;
+      border:none;
+      border-radius:8px;
+      background:cyan;
+      cursor:pointer;
+      font-weight:bold;
+    }
 
-video{
-    width:100%;
-    max-width:900px;
-    border-radius:15px;
-    border:2px solid #00d4ff;
-}
+    input{
+      padding:8px;
+      border-radius:5px;
+      border:none;
+      margin:5px;
+    }
 
-button{
-    background:#00d4ff;
-    border:none;
-    padding:10px 15px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-input{
-    padding:8px;
-    border-radius:5px;
-    border:none;
-}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#111;
-  color:white;
-  min-height:100vh;
-}
-
-.profile-card{
-  width:350px;
-  margin:40px auto;
-  padding:25px;
-  text-align:center;
-  background:#1b1b1b;
-  border-radius:18px;
-  box-shadow:0 0 20px cyan;
-}
-
-.stats{
-  display:flex;
-  justify-content:space-between;
-  margin:20px 0;
-}
-
-.stats div{
-  background:#222;
-  padding:10px;
-  border-radius:12px;
-  width:30%;
-}
-
-button{
-  margin:6px;
-  padding:10px 14px;
-  border:none;
-  border-radius:8px;
-  background:cyan;
-  cursor:pointer;
-}
-
-textarea{
-  width:90%;
-  height:70px;
-  border-radius:8px;
-  padding:10px;
-}
-</style>
+    textarea{
+      width:90%;
+      height:70px;
+      border-radius:8px;
+      padding:10px;
+    }
+  </style>
 </head>
+
 <body>
+
 <div class="navbar">
   <div class="logo">🔥 Penglam Live</div>
 
@@ -114,6 +85,7 @@ textarea{
     <button onclick="logout()">Logout</button>
   </div>
 </div>
+
 <div class="profile-card">
 
   <img
@@ -127,6 +99,9 @@ textarea{
 
   <h2 id="profileUsername">Loading...</h2>
   <p id="bio"></p>
+
+  <button id="followBtn" onclick="followUser()">Follow</button>
+  <button id="unfollowBtn" onclick="unfollowUser()" style="display:none;">Unfollow</button>
 
   <div class="stats">
     <div><h3 id="followers">0</h3><p>Followers</p></div>
@@ -145,173 +120,205 @@ textarea{
 
   <textarea id="bioInput" placeholder="Write your bio"></textarea>
   <br>
-  <button onclick="updateProfile()">
-    Save Bio
-</button>
+  <button onclick="updateProfile()">Save Bio</button>
+
   <h3>Send Gift</h3>
 
-<div id="giftBox">
-  <button onclick="sendGift('Rose 🌹',10)">
-    Rose 🌹 +10
-  </button>
-
-  <button onclick="sendGift('Heart 💗',50)">
-    Heart 💗 +50
-  </button>
-
-  <button onclick="sendGift('Lion 🦁',1000)">
-    Lion 🦁 +1000
-  </button>
-</div>
+  <div id="giftBox">
+    <button onclick="sendGift('Rose 🌹',10)">Rose 🌹 +10</button>
+    <button onclick="sendGift('Heart 💗',50)">Heart 💗 +50</button>
+    <button onclick="sendGift('Lion 🦁',1000)">Lion 🦁 +1000</button>
+  </div>
 
 </div>
 
-<script src="/socket.io/socket.io.js"></script> 
+<script src="/socket.io/socket.io.js"></script>
+
 <script>
-    const socket = io();
+const socket = io();
 
-const username = localStorage.getItem("username");
+const currentUser = localStorage.getItem("username");
+const params = new URLSearchParams(window.location.search);
+const profileUser = params.get("user") || currentUser;
 
 function goHome() {
-    window.location.href = "/home.html";
+  window.location.href = "/home.html";
 }
 
 function goLive() {
-    const username = localStorage.getItem("username");
+  if (!currentUser) {
+    window.location.href = "/home.html";
+    return;
+  }
 
-    if (!username) {
-        window.location.href = "/home.html";
-        return;
-    }
-
-    window.location.href =
-        "/index.html?room=" + encodeURIComponent(username);
+  window.location.href =
+    "/index.html?room=" + encodeURIComponent(currentUser);
 }
 
 function logout() {
-    localStorage.clear();
-    window.location.href = "/home.html";
+  localStorage.clear();
+  window.location.href = "/home.html";
 }
-
-socket.on("gift-received", data => {
-    const giftBox = document.getElementById("giftBox");
-
-    if (giftBox) {
-        giftBox.innerHTML +=
-            `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
-    }
-});
 
 async function loadProfile() {
+  if (!profileUser) {
+    alert("Please login first");
+    window.location.href = "/home.html";
+    return;
+  }
 
-    const res = await fetch(`/profile/${username}`);
-    const data = await res.json();
-    console.log(data);
+  const res = await fetch(`/profile/${profileUser}`);
+  const data = await res.json();
 
-    if (data.success) {
+  if (!data.success) {
+    alert("Profile not found");
+    return;
+  }
 
-        document.getElementById("profileUsername").innerText =
-            data.username;
+  document.getElementById("profileUsername").innerText = data.username;
 
-        const avatarImg = document.getElementById("avatar");
-       avatarImg.src = data.avatar || "/default-avatar.png";
-       avatarImg.onerror = function () {
-        this.onerror = null;
-       this.src = "/default-avatar.png";
-       };
+  const avatarImg = document.getElementById("avatar");
+  avatarImg.src = data.avatar || "/default-avatar.png";
+  avatarImg.onerror = function () {
+    this.onerror = null;
+    this.src = "/default-avatar.png";
+  };
 
-        document.getElementById("followers").innerText =
-            "Followers: " + data.followers;
+  document.getElementById("followers").innerText = data.followers || 0;
+  document.getElementById("following").innerText = data.following || 0;
+  document.getElementById("coins").innerText = data.coins || 0;
+  document.getElementById("bio").innerText = data.bio || "";
+  document.getElementById("bioInput").value = data.bio || "";
 
-        document.getElementById("following").innerText =
-            "Following: " + data.following;
+  const followBtn = document.getElementById("followBtn");
+  const unfollowBtn = document.getElementById("unfollowBtn");
 
-        document.getElementById("coins").innerText =
-            "Coins: " + data.coins;
+  if (!currentUser || currentUser === profileUser) {
+    followBtn.style.display = "none";
+    unfollowBtn.style.display = "none";
+    return;
+  }
 
-        document.getElementById("bio").innerText =
-            data.bio;
-    }
+  if ((data.followersList || []).includes(currentUser)) {
+    followBtn.style.display = "none";
+    unfollowBtn.style.display = "inline-block";
+  } else {
+    followBtn.style.display = "inline-block";
+    unfollowBtn.style.display = "none";
+  }
 }
-async function updateProfile() {
-    const bio = document.getElementById("bioInput").value;
-    const username = localStorage.getItem("username");
 
-    const res = await fetch(`/update-profile/${username}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            bio
-        })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-        alert("Profile Updated");
-        loadProfile();
-    } else {
-        alert("Update Failed");
-    }
-}
 async function followUser() {
-  const res = await fetch(`/follow/${username}`, {
-    method: "POST"
-  });
-
-  const data = await res.json();
-  console.log("follow data:", data);
-
-  if (data.success) {
-    document.getElementById("followers").innerText =
-      "Followers: " + data.followers;
-  } else {
-    alert("Follow failed");
-  }
-}
-
-async function unfollowUser() {
-  const res = await fetch(`/unfollow/${username}`, {
-    method: "POST"
-  });
-
-  const data = await res.json();
-  console.log("unfollow data:", data);
-
-  if (data.success) {
-    document.getElementById("followers").innerText =
-      "Followers: " + data.followers;
-  } else {
-    alert("Unfollow failed");
-  }
-}
-async function addCoins(amount) {
-
-  const res = await fetch(`/add-coins/${username}`, {
+  const res = await fetch(`/follow/${profileUser}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      amount: amount
+      currentUser
     })
   });
 
   const data = await res.json();
 
   if (data.success) {
+    document.getElementById("followers").innerText = data.followers;
+    document.getElementById("followBtn").style.display = "none";
+    document.getElementById("unfollowBtn").style.display = "inline-block";
+  } else {
+    alert(data.message || "Follow failed");
+  }
+}
 
-    document.getElementById("coins").innerText =
-      "Coins: " + data.coins;
+async function unfollowUser() {
+  const res = await fetch(`/unfollow/${profileUser}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      currentUser
+    })
+  });
 
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("followers").innerText = data.followers;
+    document.getElementById("followBtn").style.display = "inline-block";
+    document.getElementById("unfollowBtn").style.display = "none";
+  } else {
+    alert(data.message || "Unfollow failed");
+  }
+}
+
+async function updateProfile() {
+  const bio = document.getElementById("bioInput").value;
+
+  const res = await fetch(`/update-profile/${currentUser}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ bio })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Profile Updated");
+    loadProfile();
+  } else {
+    alert("Update Failed");
+  }
+}
+
+async function uploadAvatar() {
+  const file = document.getElementById("avatarFile").files[0];
+
+  if (!file) {
+    alert("Please select photo");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+  formData.append("username", currentUser);
+
+  const res = await fetch("/upload-avatar", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("avatar").src = data.avatar;
+    localStorage.setItem("avatar", data.avatar);
+    alert("Photo uploaded!");
+  }
+}
+
+async function addCoins(amount) {
+  const res = await fetch(`/add-coins/${profileUser}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ amount })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("coins").innerText = data.coins;
   } else {
     alert("Failed");
   }
 }
+
 async function sendGift(giftName, amount) {
-  const res = await fetch(`/send-gift/${username}`, {
+  const res = await fetch(`/send-gift/${profileUser}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -322,40 +329,20 @@ async function sendGift(giftName, amount) {
   const data = await res.json();
 
   if (data.success) {
-    document.getElementById("coins").innerText =
-      "Coins: " + data.coins;
+    document.getElementById("coins").innerText = data.coins;
   }
 }
 
+socket.on("gift-received", data => {
+  const giftBox = document.getElementById("giftBox");
+
+  if (giftBox) {
+    giftBox.innerHTML +=
+      `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
+  }
+});
+
 loadProfile();
-async function uploadAvatar() {
-
-    const file =
-        document.getElementById("avatarFile").files[0];
-
-    const username =
-        localStorage.getItem("username");
-
-    const formData = new FormData();
-
-    formData.append("avatar", file);
-    formData.append("username", username);
-
-    const res = await fetch("/upload-avatar", {
-        method: "POST",
-        body: formData
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-
-        document.getElementById("avatar").src =
-            data.avatar;
-        localStorage.setItem("avatar", data.avatar);
-        alert("Photo uploaded!");
-    }
-}
 </script>
 
 </body>
