@@ -191,7 +191,15 @@ function stopLive() {
 }
 
 function goProfile() {
-  window.location.href = "/profile.html";
+  const profileTarget = roomId;
+
+  if (!profileTarget) {
+    window.location.href = "/profile.html";
+    return;
+  }
+
+  window.location.href =
+    "/profile.html?user=" + encodeURIComponent(profileTarget);
 }
 
 socket.on("watcher", async (viewerId) => {
