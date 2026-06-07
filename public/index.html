@@ -242,25 +242,21 @@ socket.on("offer", async (description) => {
   if (!description || !description.type) return;
    peerConnection = new RTCPeerConnection(configuration);
    peerConnection.ontrack = event => {
-  console.log("TRACK RECEIVED");
+     console.log("TRACK RECEIVED");
 
-  if (!video.srcObject) 
     video.srcObject = event.streams[0];
-
+    video.muted = true;
     video.autoplay = true;
     video.playsInline = true;
-    video.muted = true;
 
-    video.onloadedmetadata = () => {
-      video.play()
-        .then(() => console.log("PLAY OK"))
-        .catch(err => console.log("PLAY ERROR", err));
-    };
+    video.play()
+     .then(() => console.log("PLAY OK"))
+     .catch(err => console.log("PLAY ERROR", err));
 
     console.log("VIDEO SET");
-};
+ };
 
-  peerConnection.onicecandidate = event => {
+   peerConnection.onicecandidate = event => {
     if (event.candidate) {
       socket.emit("ice-candidate", roomId, event.candidate);
     }

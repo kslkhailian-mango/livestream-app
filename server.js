@@ -392,11 +392,9 @@ socket.on("answer", (broadcasterId, answer) => {
 });
 
 socket.on("ice-candidate", (targetId, candidate) => {
-    io.to(targetId).emit(
-        "ice-candidate",
-        socket.id,
-        candidate
-    );
+  if (!targetId || !candidate) return;
+
+  io.to(targetId).emit("ice-candidate", socket.id, candidate);
 });
   socket.on("broadcaster", (data) => {
   const roomId = data.roomId;
