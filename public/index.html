@@ -1,133 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Live Stream App</title>
-    <style>
-        body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#111;
-    color:white;
-}
+  <title>Penglam Live Room</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      padding: 20px;
+    }
 
-.navbar{
-    background:#222;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
+    video {
+      width: 100%;
+      max-width: 900px;
+      height: 480px;
+      object-fit: contain;
+      border-radius: 15px;
+      border: 2px solid #00d4ff;
+      background: #000;
+    }
 
-.logo{
-    color:#00d4ff;
-    font-size:24px;
-    font-weight:bold;
-}
+    button {
+      padding: 10px 15px;
+      background: #00d4ff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px;
+    }
 
-.container{
-    display:flex;
-    gap:20px;
-    padding:20px;
-}
+    input {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin: 5px;
+    }
 
-.video-section{
-    flex:3;
-}
-
-.chat-section{
-    flex:1;
-    background:#1a1a1a;
-    padding:10px;
-    border-radius:10px;
-}
-
-video{
-    width:100%;
-    max-width:900px;
-    border-radius:15px;
-    border:2px solid #00d4ff;
-}
-
-button{
-    background:#00d4ff;
-    border:none;
-    padding:10px 15px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-input{
-    padding:8px;
-    border-radius:5px;
-    border:none;
-}
-input{
-    padding:10px;
-    border-radius:6px;
-    border:none;
-    margin:5px;
-}
-
-button{
-    padding:10px 15px;
-    background:#00d4ff;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-button:hover{
-    background:#00aacc;
-}
-
-#chatBox{
-    background:#222;
-    border:1px solid #00d4ff;
-    border-radius:10px;
-    padding:10px;
-}
-    </style>
+    #chatBox {
+      width: 640px;
+      height: 200px;
+      background: #222;
+      border: 1px solid #00d4ff;
+      border-radius: 10px;
+      padding: 10px;
+      overflow: auto;
+    }
+  </style>
 </head>
-<script>
-</script>
+
 <body>
 
 <h1>My Live Stream</h1>
 
-<h2>Register</h2>
-<input type="text" id="regUser" placeholder="Username">
-<input type="password" id="regPass" placeholder="Password">
-<button onclick="window.location.href='/register.html'">
-  Register
-</button>
-
-<hr>
-
-<h2>Login</h2>
-<input type="text" id="loginUser" placeholder="Username">
-<input type="password" id="loginPass" placeholder="Password">
-<button onclick="window.location.href='/login.html'">
-  Login
-</button>
-
-<hr>
-
 <button id="startBtn" onclick="startCamera()">Start Live</button>
-<button id="stopBtn" onclick="stopLive()">Stop Live</button>
+<button id="stopBtn" onclick="stopLive()" style="display:none;">Stop Live</button>
 <button id="profileBtn" onclick="goProfile()">Profile</button>
+
 <br><br>
 
-<video id="video" width="640" height="480" autoplay playsinline style="transform: scaleX(1);"></video>
-
-
-
-
+<video id="video" autoplay playsinline></video>
 
 <h3>Viewers: <span id="viewerCount">0</span></h3>
 
 <h3>Live Chat</h3>
-<div id="chatBox" style="width:640px;height:200px;border:1px solid black;overflow:auto;"></div>
+<div id="chatBox"></div>
 
 <br>
 
@@ -135,12 +73,12 @@ button:hover{
 <button onclick="sendMessage()">Send</button>
 
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
 const socket = io();
 
 const params = new URLSearchParams(window.location.search);
 const isViewer = params.get("watch") === "1";
-
 const loggedInUser = localStorage.getItem("username");
 
 let roomId = params.get("room");
@@ -154,64 +92,70 @@ if (!roomId && isViewer) {
   window.location.href = "/home.html";
 }
 
-window.addEventListener("load", () => {
-  if (isViewer) {
-    socket.emit("join-room", roomId);
-
-    console.log("WATCHER MODE", roomId);
-    socket.emit("watcher", roomId);
-
-   const startBtn = document.getElementById("startBtn");
-   const stopBtn = document.getElementById("stopBtn");
-
-   if (startBtn) startBtn.style.display = "none";
-   if (stopBtn) stopBtn.style.display = "none";
- }
-});
 let stream;
 let peerConnection;
+let liveStartTime = null;
 let remoteStreamSet = false;
-const configuration = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" }
-  ]
-};
+let currentBroadcasterId = null;
 
 const video = document.getElementById("video");
+
 if (!isViewer) {
   video.style.transform = "scaleX(-1)";
 } else {
   video.style.transform = "scaleX(1)";
 }
 
+const configuration = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
+
+window.addEventListener("load", () => {
+  if (isViewer) {
+    socket.emit("join-room", roomId);
+    console.log("WATCHER MODE", roomId);
+    socket.emit("watcher", roomId);
+
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("stopBtn").style.display = "none";
+  }
+});
+
 async function startCamera() {
-    const username = localStorage.getItem("username");
+  const username = localStorage.getItem("username");
 
-    if (!username) {
-        alert("Please login first to go live");
-        window.location.href = "/home.html";
-        return;
-    }
+  if (!username) {
+    alert("Please login first to go live");
+    window.location.href = "/home.html";
+    return;
+  }
 
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-        });
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
 
-        video.srcObject = stream;
+    liveStartTime = Date.now();
 
-        const profileBtn = document.getElementById("profileBtn");
-             if (profileBtn) {
-             profileBtn.disabled = true;
-          }
+    video.srcObject = stream;
 
-        socket.emit("broadcaster", {
-            roomId,
-            streamer: username,
-            avatar: localStorage.getItem("avatar") || "/default-avatar.png"
-        });
-   
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("stopBtn").style.display = "inline-block";
+
+    const profileBtn = document.getElementById("profileBtn");
+    if (profileBtn) profileBtn.disabled = true;
+
+    socket.emit("broadcaster", {
+      roomId,
+      streamer: username,
+      avatar: localStorage.getItem("avatar") || "/default-avatar.png"
+    });
+
+    console.log("BROADCASTER STARTED:", roomId);
+
   } catch (err) {
     console.error(err);
     alert("Camera access denied");
@@ -228,86 +172,28 @@ function stopLive() {
     peerConnection.close();
     peerConnection = null;
   }
+
   socket.emit("stop-live", roomId);
 
   video.srcObject = null;
+
+  const username = localStorage.getItem("username") || "Streamer";
+
+  const minutes = liveStartTime
+    ? Math.max(1, Math.floor((Date.now() - liveStartTime) / 60000))
+    : 0;
+
+  const viewerText = document.getElementById("viewerCount")?.innerText || "0";
+  const viewers = viewerText.replace(/\D/g, "") || "0";
+
+  window.location.href =
+    `/live-summary.html?room=${encodeURIComponent(roomId)}&streamer=${encodeURIComponent(username)}&minutes=${minutes}&viewers=${viewers}`;
 }
+
 function goProfile() {
-    window.location.href = "/profile.html";
+  window.location.href = "/profile.html";
 }
-socket.on("offer", async (description) => {
-  if (!isViewer) return;
 
-  remoteStreamSet = false;
-
-  console.log("Offer received", description);
-
-  if (!description || !description.type) return;
-   peerConnection = new RTCPeerConnection(configuration);
-   peerConnection.ontrack = event => {
-  console.log("TRACK RECEIVED");
-
-  if (remoteStreamSet) return;
-
-  remoteStreamSet = true;
-
-  video.srcObject = event.streams[0];
-  video.muted = true;
-  video.autoplay = true;
-  video.playsInline = true;
-
-  video.onloadedmetadata = () => {
-    video.play()
-      .then(() => console.log("PLAY OK"))
-      .catch(err => console.log("PLAY ERROR", err));
-  };
-
-  console.log("VIDEO SET");
-};
-
-   peerConnection.onicecandidate = event => {
-    if (event.candidate) {
-      socket.emit("ice-candidate", roomId, event.candidate);
-    }
-  };
-
-  await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(description)
-  );
-
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
-
-  socket.emit("answer", roomId, peerConnection.localDescription);
-});
-
-socket.on("answer", async (viewerId, description) => {
-  if (isViewer) return;
-
-  if (!peerConnection) return;
-
-  if (peerConnection.signalingState !== "have-local-offer") {
-    console.log("Ignore answer, state:", peerConnection.signalingState);
-    return;
-  }
-
-  await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(description)
-  );
-});
-
-socket.on("ice-candidate", async (id, candidate) => {
-    if (!candidate || !peerConnection) return;
-
-    try {
-        await peerConnection.addIceCandidate(candidate);
-    } catch (err) {
-        console.error("ICE ERROR", err);
-    }
-});
-socket.on("viewer-count", count => {
-    document.getElementById("viewerCount").innerText = count;
-});
 socket.on("watcher", async (viewerId) => {
   console.log("Watcher connected, sending offer", viewerId);
 
@@ -330,33 +216,110 @@ socket.on("watcher", async (viewerId) => {
 
   socket.emit("offer", viewerId, peerConnection.localDescription);
 });
-socket.on("chat-message", data => {
-    const chatBox = document.getElementById("chatBox");
 
-    chatBox.innerHTML +=
-        `<p><b>${data.user}</b>: ${data.message}</p>`;
-});
-function sendMessage() {
-    const input = document.getElementById("messageInput");
-    const message = input.value.trim();
-    const username = localStorage.getItem("username");
+socket.on("offer", async (broadcasterId, description) => {
+  if (!isViewer) return;
 
-    if (!message) return;
+  currentBroadcasterId = broadcasterId;
+  remoteStreamSet = false;
 
-    if (!username) {
-        alert("Please login to chat");
-        return;
+  console.log("Offer received", description);
+
+  if (!description || !description.type) return;
+
+  peerConnection = new RTCPeerConnection(configuration);
+
+  peerConnection.ontrack = event => {
+    console.log("TRACK RECEIVED");
+
+    if (remoteStreamSet) return;
+    remoteStreamSet = true;
+
+    video.srcObject = event.streams[0];
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+
+    video.onloadedmetadata = () => {
+      video.play()
+        .then(() => console.log("PLAY OK"))
+        .catch(err => console.log("PLAY ERROR", err));
+    };
+
+    console.log("VIDEO SET");
+  };
+
+  peerConnection.onicecandidate = event => {
+    if (event.candidate) {
+      socket.emit("ice-candidate", broadcasterId, event.candidate);
     }
+  };
 
-    socket.emit("chat-message", {
-        roomId: roomId,
-        user: username,
-        message: message
-    });
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(description)
+  );
 
-    input.value = "";
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  socket.emit("answer", broadcasterId, peerConnection.localDescription);
+});
+
+socket.on("answer", async (viewerId, description) => {
+  if (isViewer) return;
+  if (!peerConnection) return;
+
+  if (peerConnection.signalingState !== "have-local-offer") {
+    console.log("Ignore answer, state:", peerConnection.signalingState);
+    return;
+  }
+
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(description)
+  );
+});
+
+socket.on("ice-candidate", async (id, candidate) => {
+  if (!candidate || !peerConnection) return;
+
+  try {
+    await peerConnection.addIceCandidate(candidate);
+  } catch (err) {
+    console.error("ICE ERROR", err);
+  }
+});
+
+socket.on("viewer-count", count => {
+  document.getElementById("viewerCount").innerText = count;
+});
+
+socket.on("chat-message", data => {
+  const chatBox = document.getElementById("chatBox");
+
+  chatBox.innerHTML +=
+    `<p><b>${data.user}</b>: ${data.message}</p>`;
+});
+
+function sendMessage() {
+  const input = document.getElementById("messageInput");
+  const message = input.value.trim();
+  const username = localStorage.getItem("username");
+
+  if (!message) return;
+
+  if (!username) {
+    alert("Please login to chat");
+    return;
+  }
+
+  socket.emit("chat-message", {
+    roomId,
+    user: username,
+    message
+  });
+
+  input.value = "";
 }
-
 </script>
 
 </body>

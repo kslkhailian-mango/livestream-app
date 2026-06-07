@@ -384,7 +384,7 @@ socket.on("watcher", (roomId) => {
 });
 
 socket.on("offer", (viewerId, offer) => {
-  io.to(viewerId).emit("offer", offer);
+  io.to(viewerId).emit("offer", socket.id, offer);
 });
 
 socket.on("answer", (broadcasterId, answer) => {
