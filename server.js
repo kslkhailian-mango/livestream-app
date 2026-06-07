@@ -330,6 +330,26 @@ app.get("/live-rooms", (req, res) => {
 
   res.json(rooms);
 });  
+app.get("/clear-live-rooms", (req, res) => {
+  for (const roomId in liveRooms) {
+    delete liveRooms[roomId];
+  }
+
+  for (const roomId in broadcasters) {
+    delete broadcasters[roomId];
+  }
+
+  for (const roomId in viewerCounts) {
+    delete viewerCounts[roomId];
+  }
+
+  io.emit("live-rooms-updated");
+
+  res.json({
+    success: true,
+    message: "All live rooms cleared"
+  });
+});
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 socket.on("join-room", (roomId) => {
