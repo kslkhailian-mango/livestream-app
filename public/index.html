@@ -308,8 +308,12 @@ socket.on("offer", async (description) => {
   peerConnection = new RTCPeerConnection(configuration);
 
   peerConnection.ontrack = event => {
+    console.log("TRACK RECEIVED", event);
+
     video.srcObject = event.streams[0];
-  };
+
+    console.log("VIDEO SET");
+};
 
   peerConnection.onicecandidate = event => {
     if (event.candidate) {
