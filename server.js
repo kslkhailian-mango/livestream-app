@@ -34,33 +34,43 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/home.html");
 });
 const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
+  username: String,
+  password: String,
 
-    avatar: {
-        type: String,
-        default: "/default-avatar.png"
-    },
+  avatar: {
+    type: String,
+    default: "/default-avatar.png"
+  },
 
-    followers: {
-        type: Number,
-        default: 0
-    },
+  followers: {
+    type: Number,
+    default: 0
+  },
 
-    following: {
-        type: Number,
-        default: 0
-    },
+  following: {
+    type: Number,
+    default: 0
+  },
 
-    coins: {
-        type: Number,
-        default: 0
-    },
+  followersList: {
+    type: [String],
+    default: []
+  },
 
-    bio: {
-        type: String,
-        default: ""
-    }
+  followingList: {
+    type: [String],
+    default: []
+  },
+
+  coins: {
+    type: Number,
+    default: 0
+  },
+
+  bio: {
+    type: String,
+    default: ""
+  }
 });
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 if (!fs.existsSync("public/uploads")) {
@@ -154,87 +164,142 @@ app.post("/login", async (req, res) => {
   }
 });
 app.get("/profile/:username", async (req, res) => {
-
+  try {
     const user = await User.findOne({
-        username: req.params.username
+      username: req.params.username
     });
 
     if (!user) {
-        return res.json({
-            success: false
-        });
-    }
-
-    res.json({
-  success: true,
-  username: user.username,
-  avatar: user.avatar,
-  followers: user.followers,
-  following: user.following,
-  coins: user.coins,
-  bio: user.bio
- });
-});
-async function followHandler(req, res) {
-  try {
-    const username = req.params.username;
-
-    let user = await User.findOne({ username });
-
-    if (!user) {
-      user = new User({
-        username: username,
-        password: "1234",
-        followers: 0,
-        following: 0,
-        coins: 0
+      return res.json({
+        success: false
       });
     }
 
-    user.followers = (user.followers || 0) + 1;
-
-    await user.save();
-
     res.json({
       success: true,
-      followers: user.followers
+      username: user.username,
+      avatar: user.avatar,
+      followers: user.followers,
+      following: user.following,
+      followersList: user.followersList || [],
+      followingList: user.followingList || [],
+      coins: user.coins,
+      bio: user.bio
     });
 
   } catch (err) {
-    console.error(err);
-    res.json({ success: false });
+    console.log("PROFILE ERROR:", err);
+    res.status(500).json({ success: false });
   }
-}
+});
+app.post("/follow/:username", async (req, res) => {
+  try {
+    const targetUsername = req.params.username;
+    const { currentUser } = req.body;
 
-app.post("/follow/:username", followHandler);
-app.get("/follow/:username", followHandler);
+    if (!currentUser) {
+      return res.json({
+        success: false,
+        message: "Please login first"
+      });
+    }
+
+    if (currentUser === targetUsername) {
+      return res.json({
+        success: false,
+        message: "You cannot follow yourself"
+      });
+    }
+
+    const targetUser = await User.findOne({ username: targetUsername });
+    const me = await User.findOne({ username: currentUser });
+
+    if (!targetUser || !me) {
+      return res.json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    if (targetUser.followersList.includes(currentUser)) {
+      return res.json({
+        success: false,
+        message: "Already following",
+        followers: targetUser.followers,
+        following: me.following
+      });
+    }
+
+    targetUser.followersList.push(currentUser);
+    targetUser.followers = targetUser.followersList.length;
+
+    me.followingList.push(targetUsername);
+    me.following = me.followingList.length;
+
+    await targetUser.save();
+    await me.save();
+
+    res.json({
+      success: true,
+      message: "Followed",
+      followers: targetUser.followers,
+      following: me.following
+    });
+
+  } catch (err) {
+    console.log("FOLLOW ERROR:", err);
+    res.status(500).json({ success: false });
+  }
+});
 
 app.post("/unfollow/:username", async (req, res) => {
   try {
-    const username = req.params.username;
+    const targetUsername = req.params.username;
+    const { currentUser } = req.body;
 
-    const user = await User.findOne({ username });
-
-    if (!user) {
-      return res.json({ success: false });
+    if (!currentUser) {
+      return res.json({
+        success: false,
+        message: "Please login first"
+      });
     }
 
-    if (user.followers > 0) {
-      user.followers -= 1;
+    const targetUser = await User.findOne({ username: targetUsername });
+    const me = await User.findOne({ username: currentUser });
+
+    if (!targetUser || !me) {
+      return res.json({
+        success: false,
+        message: "User not found"
+      });
     }
 
-    await user.save();
+    targetUser.followersList = targetUser.followersList.filter(
+      name => name !== currentUser
+    );
+
+    me.followingList = me.followingList.filter(
+      name => name !== targetUsername
+    );
+
+    targetUser.followers = targetUser.followersList.length;
+    me.following = me.followingList.length;
+
+    await targetUser.save();
+    await me.save();
 
     res.json({
       success: true,
-      followers: user.followers
+      message: "Unfollowed",
+      followers: targetUser.followers,
+      following: me.following
     });
 
   } catch (err) {
-    console.error(err);
-    res.json({ success: false });
+    console.log("UNFOLLOW ERROR:", err);
+    res.status(500).json({ success: false });
   }
-});  
+}); 
 app.post("/update-profile/:username", async (req, res) => {
   try {
     const username = req.params.username;
