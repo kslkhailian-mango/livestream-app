@@ -113,15 +113,37 @@ app.post("/register", async (req, res) => {
     });
 });
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body;
 
-  const user = await User.findOne({ username, password });
+    console.log("LOGIN TRY:", username, password);
 
-  if (user) {
-    req.session.user = user;
-    res.json({ success: true, username: user.username });
-  } else {
-    res.json({ success: false });
+    const user = await User.findOne({ username, password });
+
+    if (user) {
+      req.session.user = {
+        username: user.username
+      };
+
+      return res.json({
+        success: true,
+        username: user.username,
+        avatar: user.avatar
+      });
+    }
+
+    return res.json({
+      success: false,
+      message: "Wrong username or password"
+    });
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server login error"
+    });
   }
 });
 app.get("/profile/:username", async (req, res) => {
