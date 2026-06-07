@@ -178,14 +178,19 @@ function stopLive() {
 const socket = io();
 
 const params = new URLSearchParams(window.location.search);
-const roomId = params.get("room") || "room1";
 const isViewer = params.get("watch") === "1";
 
 const loggedInUser = localStorage.getItem("username");
 
-if (!isViewer && !loggedInUser) {
-    alert("Please login first to go live");
-    window.location.href = "/home.html";
+let roomId = params.get("room");
+
+if (!roomId && !isViewer) {
+  roomId = "room-" + loggedInUser + "-" + Date.now();
+}
+
+if (!roomId && isViewer) {
+  alert("Room not found");
+  window.location.href = "/home.html";
 }
 
 window.addEventListener("load", () => {
