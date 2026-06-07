@@ -244,7 +244,7 @@ socket.on("offer", async (description) => {
    peerConnection.ontrack = event => {
   console.log("TRACK RECEIVED");
 
-  if (!video.srcObject) {
+  if (!video.srcObject) 
     video.srcObject = event.streams[0];
 
     video.autoplay = true;
@@ -258,7 +258,6 @@ socket.on("offer", async (description) => {
     };
 
     console.log("VIDEO SET");
-  }
 };
 
   peerConnection.onicecandidate = event => {
