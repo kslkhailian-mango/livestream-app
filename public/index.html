@@ -249,7 +249,7 @@ socket.on("offer", async (description) => {
 
     video.autoplay = true;
     video.playsInline = true;
-    video.muted = false;
+    video.muted = true;
 
     video.onloadedmetadata = () => {
       video.play()
