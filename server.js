@@ -10,6 +10,13 @@ const fs = require("fs");
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
+mongoose.connection.on("connected", () => {
+  console.log("DB READY");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.log("DB ERROR:", err);
+});    
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
