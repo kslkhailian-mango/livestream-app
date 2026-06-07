@@ -399,14 +399,25 @@ socket.on("ice-candidate", (targetId, candidate) => {
   socket.on("broadcaster", (data) => {
   const roomId = data.roomId;
   const streamer = data.streamer || "Guest";
+
   broadcasters[roomId] = socket.id;
+
+  // Host ကို room ထဲ join စေမယ်၊ ဒါပေမယ့် viewer count မတိုးစေဘူး
+  socket.join(roomId);
+
   liveRooms[roomId] = {
-  roomId,
-  title: streamer + " Live",
-  streamer,
-  avatar: data.avatar || "/default-avatar.png"
-};
+    roomId,
+    title: streamer + " Live",
+    streamer,
+    avatar: data.avatar || "/default-avatar.png"
+  };
+
   io.emit("live-rooms-updated");
+
+  io.to(roomId).emit(
+    "viewer-count",
+    viewerCounts[roomId] || 0
+  );
 });
 socket.on("chat-message", (data) => {
     io.to(data.roomId).emit("chat-message", data);
