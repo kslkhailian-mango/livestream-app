@@ -305,12 +305,18 @@ socket.on("offer", async (description) => {
 
   if (!description || !description.type) return;
 
-  peerConnection = new RTCPeerConnection(configuration);
-
   peerConnection.ontrack = event => {
-    console.log("TRACK RECEIVED", event);
+    console.log("TRACK RECEIVED");
 
     video.srcObject = event.streams[0];
+
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = false;
+
+    video.play()
+        .then(() => console.log("PLAY OK"))
+        .catch(err => console.log("PLAY ERROR", err));
 
     console.log("VIDEO SET");
 };
