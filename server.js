@@ -1,13 +1,15 @@
+require("dotenv").config();
+
 const mongoose = require("mongoose");
 const express = require("express");
 const session = require("express-session");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-mongoose.connect("mongodb+srv://PenglamFoundation:Zammun%40123@cluster0.d3tgnwk.mongodb.net/test?retryWrites=true&w=majority")
+
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
-
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
@@ -287,8 +289,6 @@ app.post("/send-gift/:username", async (req, res) => {
     res.json({ success: false });
   }  
 });
-app.get("/follow/:username", followHandler);
-app.post("/follow/:username", followHandler);
 
 const broadcasters = {};
 const viewerCounts = {};
@@ -374,29 +374,29 @@ socket.on("stop-live", (roomId) => {
     io.emit("live-rooms-updated");
 });
   socket.on("disconnecting", () => {
-    for (const roomId of socket.rooms) {
-     
-        if (roomId !== socket.id) {
+  for (const roomId of socket.rooms) {
+    if (roomId === socket.id) continue;
 
-            viewerCounts[roomId] =
-                Math.max((viewerCounts[roomId] || 1) - 1, 0);
+    // If broadcaster disconnects, remove live room
+    if (broadcasters[roomId] === socket.id) {
+      delete broadcasters[roomId];
+      delete liveRooms[roomId];
+      delete viewerCounts[roomId];
 
-            io.to(roomId).emit(
-                "viewer-count",
-                viewerCounts[roomId]
-            );
-        if (liveRooms[roomId]) {
-               delete liveRooms[roomId];
-                io.emit("live-rooms-updated");
-           }
-            console.log(
-                "VIEWERS:",
-                viewerCounts[roomId]
-            );
-        }
+      io.emit("live-rooms-updated");
+      console.log("Broadcaster disconnected, room removed:", roomId);
+    } 
+    // If viewer disconnects, only reduce viewer count
+    else {
+      viewerCounts[roomId] = Math.max((viewerCounts[roomId] || 1) - 1, 0);
+
+      io.to(roomId).emit("viewer-count", viewerCounts[roomId]);
+
+      console.log("Viewer left:", roomId, viewerCounts[roomId]);
     }
+  }
 
-    console.log("User disconnected:", socket.id);
+  console.log("User disconnected:", socket.id);
 });
 });
 
