@@ -194,11 +194,11 @@ if (!roomId && isViewer) {
 }
 
 window.addEventListener("load", () => {
-  socket.emit("join-room", roomId);
+  if (isViewer) {
+    socket.emit("join-room", roomId);
 
-   if (isViewer) {
-   console.log("WATCHER MODE", roomId);
-   socket.emit("watcher", roomId);
+    console.log("WATCHER MODE", roomId);
+    socket.emit("watcher", roomId);
 
    const startBtn = document.getElementById("startBtn");
    const stopBtn = document.getElementById("stopBtn");
