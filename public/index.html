@@ -2,333 +2,1107 @@
 <html>
 <head>
   <title>Penglam Live Room</title>
+
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      padding: 20px;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  padding: 25px;
+}
 
-    video {
-      width: 100%;
-      max-width: 900px;
-      height: 480px;
-      object-fit: contain;
-      border-radius: 15px;
-      border: 2px solid #00d4ff;
-      background: #000;
-    }
+button {
+  margin: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #00d4ff;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    button {
-      padding: 10px 15px;
-      background: #00d4ff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin: 5px;
-    }
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin: 6px;
+}
 
-    input {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      margin: 5px;
-    }
+#videoBox {
+  position: relative;
+  width: 640px;
+  max-width: 100%;
+  border: 2px solid #00d4ff;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #000;
+  margin-top: 20px;
+}
 
-    #chatBox {
-      width: 640px;
-      height: 200px;
-      background: #222;
-      border: 1px solid #00d4ff;
-      border-radius: 10px;
-      padding: 10px;
-      overflow: auto;
-    }
-  </style>
+#video {
+  width: 100%;
+  display: block;
+  background: #000;
+}
+
+#videoOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Host profile - left top */
+#hostProfileBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 50;
+}
+
+#hostAvatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid #00e5ff;
+}
+
+#hostName {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+/* Viewer / Gold / Silver - left under host */
+#overlayInfo{
+  position:absolute;
+  top:78px;
+  left:14px;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(8px);
+  color:white;
+  padding:8px 12px;
+  border-radius:12px;
+  font-size:14px;
+  font-weight:bold;
+  line-height:1.45;
+  box-shadow:0 4px 15px rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.12);
+  min-width:115px;
+}
+
+/* Top supporters - right top only */
+#viewerList{
+  position:absolute;
+  top:10px;
+  right:12px;
+  z-index:9999;
+  pointer-events:auto;
+}
+
+#topSupporterRow{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:0;
+  cursor:pointer;
+}
+
+.supporterAvatarBox{
+  position:relative;
+  width:32px;
+  height:32px;
+  margin-left:-6px;
+}
+
+.supporterAvatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #00d4ff;
+  background:#111;
+}
+
+.rankBadge{
+  position:absolute;
+  top:-7px;
+  right:-3px;
+  font-size:13px;
+  z-index:2;
+}
+
+#extraViewerCount{
+  margin-left:8px;
+  padding:5px 10px;
+  border-radius:20px;
+  background:rgba(0,0,0,.65);
+  color:white;
+  font-size:13px;
+  font-weight:bold;
+}
+.fakeAvatar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+    background:#111;
+    color:white;
+
+    font-weight:bold;
+    font-size:18px;
+
+    border:2px solid #00d4ff;
+    flex-shrink:0;
+}
+/* CHAT AREA */
+#overlayChat{
+  position:absolute;
+  left:15px;
+  bottom:0px;
+  width:280px;
+  max-height:120px;
+  z-index:9999;
+  pointer-events:auto;
+}
+
+#chatBox{
+  display:block !important;
+  max-height:120px;
+  overflow-y:auto !important;
+
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  pointer-events:auto;
+}
+
+#chatBox::-webkit-scrollbar{
+  width:0;
+  display:none;
+}
+
+.chat-message{
+  display:block !important;
+  background:transparent !important;
+  color:white;
+  margin:0 !important;
+  padding:0 !important;
+  height:auto !important;
+  min-height:0 !important;
+  line-height:18px !important;
+  font-size:16px;
+  font-weight:bold;
+  text-shadow:0 1px 3px black;
+}
+
+.gift-chat-message {
+  background: rgba(0,0,0,0.55);
+  color: #ffd86b;
+  padding: 6px 10px;
+  border-radius: 14px;
+  margin: 5px 0;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: left;
+  border-left: 3px solid #ffd86b;
+  width: fit-content;
+  max-width: 85%;
+  text-shadow: 0 1px 3px black;
+}
+
+/* Coin - bottom right, gift button အပေါ်မတက်အောင် left side နည်းနည်းရွှေ့ */
+#myCoinBalance {
+  position: absolute;
+  right: 125px;
+  bottom: 18px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 50;
+}
+
+#giftButtonBox{
+  position:absolute;
+  right:15px;
+  bottom:15px;
+  z-index:99999;
+  pointer-events:auto;
+}
+
+#giftToggleBtn{
+  background:#00d4ff;
+  color:white;
+  border:none;
+  border-radius:22px;
+  padding:10px 22px;
+  font-size:16px;
+  font-weight:bold;
+}
+
+#giftPopup{
+  position:absolute;
+  right:0;
+  bottom:55px;
+
+  display:none;
+  flex-direction:column;
+  gap:8px;
+
+  width:160px;
+  background:rgba(0,0,0,.85);
+  padding:12px;
+  border-radius:16px;
+  z-index:999999;
+}
+
+#giftPopup.show{
+  display:flex !important;
+}
+
+#giftPopup button{
+  display:block;
+  width:100%;
+  background:#00d4ff;
+  color:#111;
+  border:none;
+  border-radius:10px;
+  padding:10px 8px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:0;
+}
+
+#giftBanner {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  background: linear-gradient(90deg,#ff4fd8,#00d4ff);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 0 18px rgba(0,212,255,.8);
+  display: none;
+}
+
+#giftAnimation {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 45px;
+  font-weight: bold;
+  z-index: 99999;
+  pointer-events: none;
+  animation: none;
+}
+
+.gift-float {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 130px;
+  z-index: 99999;
+  animation: dragonPower 3s ease-out forwards;
+  text-shadow:
+    0 0 20px #00eaff,
+    0 0 45px #ff4fd8,
+    0 0 80px gold;
+}
+
+.gift-float::before {
+  content: "✨ ✨ ✨";
+  position: absolute;
+  left: 50%;
+  top: -45px;
+  transform: translateX(-50%);
+  font-size: 35px;
+  animation: sparkle 1s infinite;
+}
+
+@keyframes dragonPower {
+  0% {
+    opacity: 0;
+    transform: translate(-50%,-50%) scale(.2) rotate(-20deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%,-50%) scale(1.5) rotate(8deg);
+  }
+  45% {
+    transform: translate(-50%,-50%) scale(1.1) rotate(-6deg);
+  }
+  70% {
+    transform: translate(-50%,-60%) scale(1.3) rotate(5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%,-120%) scale(.8) rotate(20deg);
+  }
+}
+
+@keyframes sparkle {
+  0%,100% { opacity: .3; }
+  50% { opacity: 1; }
+}
+#supporterPopup{
+  display:none;
+  position:absolute;
+  top:0;
+  right:0;
+  width:100%;
+  height:100%;
+  z-index:99999;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+#supporterPopup.show{
+  display:block;
+}
+
+#supporterPanel{
+  position:absolute;
+  top:0;
+  right:0;
+  width:220px;
+  height:100%;
+  background:rgba(15,15,25,.92);
+  backdrop-filter:blur(10px);
+  border-left:1px solid rgba(255,255,255,.15);
+  padding:14px;
+  color:white;
+  pointer-events:auto;
+  box-shadow:-10px 0 25px rgba(0,0,0,.35);
+}
+
+.supporterHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.supporterHeader h3{
+  margin:0;
+  font-size:18px;
+}
+
+.supporterHeader button{
+  background:#00d4ff;
+  border:none;
+  border-radius:50%;
+  width:28px;
+  height:28px;
+  cursor:pointer;
+}
+.supporterItem{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px;
+  margin-bottom:8px;
+  border-radius:10px;
+  background:rgba(255,255,255,.08);
+}
+
+.supporterAvatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+}
+</style>
 </head>
 
 <body>
 
-<h1>My Live Stream</h1>
+  <h1>My Live Stream</h1>
 
 <button id="startBtn" onclick="startCamera()">Start Live</button>
 <button id="stopBtn" onclick="stopLive()" style="display:none;">Stop Live</button>
-<button id="profileBtn" onclick="goProfile()">Profile</button>
+<button id="homeBtn" onclick="goHome()">Home</button>
 
-<br><br>
+<div id="videoBox">
+  <video id="video" autoplay playsinline muted></video>
 
-<video id="video" autoplay playsinline></video>
+  <div id="videoOverlay">
 
-<h3>Viewers: <span id="viewerCount">0</span></h3>
+    <div id="hostProfileBtn" onclick="window.location.href='/profile.html?username=' + encodeURIComponent(new URLSearchParams(window.location.search).get('room')) + '&visitor=1'">
+      <img id="hostAvatar" src="default-avatar.png">
+      <span id="hostName">Host</span>
+    </div>
 
-<h3>Live Chat</h3>
-<div id="chatBox"></div>
+    <div id="overlayInfo">
+      <div>👁 Viewers: <span id="viewerCount">0</span></div>
+      <div>🎁 Gold: <span id="liveGold">0</span></div>
+      <div>🥈 Silver: <span id="liveSilver">0</span></div>
+    </div>
 
-<br>
+    <div id="viewerList">
+      <div id="topSupporterRow" onclick="openSupporterPopup()"></div>
+    </div>
 
-<input type="text" id="messageInput" placeholder="Type message">
-<button onclick="sendMessage()">Send</button>
+    <div id="overlayChat">
+      <div id="chatBox"></div>
+    </div>
 
-<script src="/socket.io/socket.io.js"></script>
+    <div id="myCoinBalance">
+      🪙 My Coins:
+      <span>🥇 <b id="myGold">0</b></span>
+      <span>🥈 <b id="mySilver">0</b></span>
+    </div>
 
-<script>
-const socket = io();
+    <div id="giftButtonBox">
+      <button id="giftToggleBtn" onclick="toggleGiftBox()">🎁 Gift</button>
 
-const params = new URLSearchParams(window.location.search);
-const isViewer = params.get("watch") === "1";
-const loggedInUser = localStorage.getItem("username");
+      <div id="giftPopup">
+        <button onclick="sendGift('rose')">🌹 Rose 10</button>
+        <button onclick="sendGift('heart')">💖 Heart 30</button>
+        <button onclick="sendGift('star')">⭐ Star 50</button>
+        <button onclick="sendGift('crown')">👑 Crown 100</button>
+        <button onclick="sendGift('dragon')">🐉 Dragon 500</button>
+        <button onclick="sendGift('rocket')">🚀 Rocket 500</button>
+      </div>
+    </div>
 
-let roomId = params.get("room");
+    <div id="giftBanner"></div>
+    <div id="giftAnimation"></div>
 
-if (!roomId && !isViewer) {
-  roomId = "room-" + loggedInUser + "-" + Date.now();
-}
+  </div>
+  <div id="supporterPopup">
+  <div id="supporterPanel">
+    <div class="supporterHeader">
+      <h3>🏆 Top Supporters</h3>
+      <button onclick="closeSupporterPopup()">✕</button>
+    </div>
 
-if (!roomId && isViewer) {
-  alert("Room not found");
-  window.location.href = "/home.html";
-}
+    <div id="supporterList"></div>
+  </div>
+</div>
+</div>
+  </div>
+</div>
 
-let stream;
-let peerConnection;
-let liveStartTime = null;
-let remoteStreamSet = false;
-let currentBroadcasterId = null;
+<div id="messageArea">
+  <input type="text" id="messageInput" placeholder="Type message">
+  <button onclick="sendMessage()">Send</button>
+</div>
 
-const video = document.getElementById("video");
+  <script src="/socket.io/socket.io.js"></script>
 
-if (!isViewer) {
-  video.style.transform = "scaleX(-1)";
-} else {
-  video.style.transform = "scaleX(-1)";
-}
+  <script>
+    const socket = io({
+  query: {
+    username: localStorage.getItem("username") || "viewer"
+  }
+});
 
-const configuration = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" }
-  ]
-};
+    const params = new URLSearchParams(window.location.search);
+    const isViewer = params.get("watch") === "1";
+    const loggedInUser = localStorage.getItem("username");
 
-window.addEventListener("load", () => {
-  if (isViewer) {
+    let roomId = params.get("room");
+
+    if (!roomId && !isViewer) {
+      roomId = loggedInUser;
+    }
+
+    if (!roomId && isViewer) {
+      alert("Room not found");
+      window.location.href = "/home.html";
+    }
+
+    let stream;
+    let peerConnection;
+    let liveStartTime = null;
+    let remoteStreamSet = false;
+    let currentBroadcasterId = null;
+
+    const video = document.getElementById("video");
+
+    video.style.transform = "scaleX(-1)";
+
+    const configuration = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+      ]
+    };
+
+    if (isViewer) {
     socket.emit("join-room", roomId);
-    console.log("WATCHER MODE", roomId);
     socket.emit("watcher", roomId);
+    socket.emit("request-host-info", roomId);
+
+    updateHostProfile(roomId, "/default-avatar.png");
 
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("stopBtn").style.display = "none";
+}
+
+    async function startCamera() {
+    const username = localStorage.getItem("username");
+
+    if (!username) {
+        alert("Please login first to go live");
+        window.location.href = "/home.html";
+        return;
+    }
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
+
+        liveStartTime = Date.now();
+        video.srcObject = stream;
+
+        document.getElementById("startBtn").style.display = "none";
+        document.getElementById("stopBtn").style.display = "inline-block";
+
+        const homeBtn = document.getElementById("homeBtn");
+        if (homeBtn) homeBtn.disabled = true;
+
+        const avatar =
+            localStorage.getItem("avatar") || "/default-avatar.png";
+
+        socket.emit("broadcaster", {
+            roomId,
+            streamer: username,
+            avatar: avatar
+        });
+
+        updateHostProfile(username, avatar);
+
+        console.log("BROADCASTER STARTED:", roomId);
+
+    } catch (err) {
+        console.error("CAMERA ERROR:", err);
+        alert("Camera access denied");
+    }
+}
+
+function updateHostProfile(name, avatar) {
+  const hostName = document.getElementById("hostName");
+  const hostAvatar = document.getElementById("hostAvatar");
+
+  if (hostName) {
+    hostName.textContent = name || roomId || "Host";
   }
+
+  if (hostAvatar) {
+    let avatarPath = avatar || "/default-avatar.png";
+
+    if (!avatarPath.startsWith("/") && !avatarPath.startsWith("http")) {
+      avatarPath = "/" + avatarPath;
+    }
+
+    hostAvatar.src = avatarPath;
+
+    hostAvatar.onerror = function () {
+      this.onerror = null;
+      this.src = "/default-avatar.png";
+    };
+  }
+}
+function goHome() {
+    window.location.href = "home.html";
+}
+
+function goHostProfile() {
+  const params = new URLSearchParams(window.location.search);
+  const room = params.get("room");
+
+  if (!room) {
+    alert("Host not found");
+    return;
+  }
+
+  window.location.href =
+    `/profile.html?username=${encodeURIComponent(room)}&visitor=1`;
+}
+    function stopLive() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+
+      socket.emit("stop-live", roomId);
+
+      video.srcObject = null;
+
+      const username = localStorage.getItem("username") || "Streamer";
+
+      const minutes = liveStartTime
+        ? Math.max(1, Math.floor((Date.now() - liveStartTime) / 60000))
+        : 0;
+
+      const viewers =
+        document.getElementById("viewerCount").innerText || "0";
+
+      window.location.href =
+        `/live-summary.html?room=${encodeURIComponent(roomId)}&streamer=${encodeURIComponent(username)}&minutes=${minutes}&viewers=${viewers}`;
+    }
+
+   
+    socket.on("watcher", async (viewerId) => {
+      console.log("Watcher connected:", viewerId);
+
+      if (!stream) return;
+
+      peerConnection = new RTCPeerConnection(configuration);
+
+      stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+      });
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          socket.emit("ice-candidate", viewerId, event.candidate);
+        }
+      };
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      socket.emit("offer", viewerId, peerConnection.localDescription);
+    });
+
+    socket.on("offer", async (broadcasterId, description) => {
+      if (!isViewer) return;
+
+      currentBroadcasterId = broadcasterId;
+      remoteStreamSet = false;
+
+      peerConnection = new RTCPeerConnection(configuration);
+
+      peerConnection.ontrack = event => {
+        if (remoteStreamSet) return;
+        remoteStreamSet = true;
+
+        video.srcObject = event.streams[0];
+
+        video.onloadedmetadata = () => {
+          video.play().catch(err => console.log("PLAY ERROR:", err));
+        };
+      };
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          socket.emit("ice-candidate", broadcasterId, event.candidate);
+        }
+      };
+
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(description)
+      );
+
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+
+      socket.emit("answer", broadcasterId, peerConnection.localDescription);
+    });
+
+    socket.on("answer", async (viewerId, description) => {
+      if (isViewer) return;
+      if (!peerConnection) return;
+
+      if (peerConnection.signalingState !== "have-local-offer") {
+        return;
+      }
+
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(description)
+      );
+    });
+
+    socket.on("ice-candidate", async (id, candidate) => {
+      if (!candidate || !peerConnection) return;
+
+      try {
+        await peerConnection.addIceCandidate(candidate);
+      } catch (err) {
+        console.error("ICE ERROR:", err);
+      }
+    });
+
+    socket.on("viewer-count", count => {
+      document.getElementById("viewerCount").innerText = count;
+    });
+    let lastRoomUsersJSON = "";
+
+socket.on("room-users-update", data => {
+  console.log("ROOM USERS:", data);
+
+  if (!data || !data.users) return;
+
+  const newJSON = JSON.stringify(data.users);
+
+  if (newJSON === lastRoomUsersJSON) return;
+
+  lastRoomUsersJSON = newJSON;
+  roomUsers = data.users;
+
+  renderTopViewerList();
 });
+    socket.on("live-gift-balance", data => {
+      document.getElementById("liveGold").innerText =
+        data.goldEarned || 0;
 
-async function startCamera() {
-  const username = localStorage.getItem("username");
-
-  if (!username) {
-    alert("Please login first to go live");
-    window.location.href = "/home.html";
-    return;
-  }
-
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
+      document.getElementById("liveSilver").innerText =
+        data.silverEarned || 0;
     });
+    socket.on("host-info", (data) => {
 
-    liveStartTime = Date.now();
+    console.log("HOST INFO:", data);
 
-    video.srcObject = stream;
+    updateHostProfile(
+        data.streamer,
+        data.avatar
+    );
 
-    document.getElementById("startBtn").style.display = "none";
-    document.getElementById("stopBtn").style.display = "inline-block";
+});
+    socket.on("chat-message", data => {
+      const chatBox = document.getElementById("chatBox");
 
-    const profileBtn = document.getElementById("profileBtn");
-    if (profileBtn) profileBtn.disabled = true;
+      chatBox.innerHTML +=
+        `<p><b>${data.user}</b>: ${data.message}</p>`;
 
-    socket.emit("broadcaster", {
-      roomId,
-      streamer: username,
-      avatar: localStorage.getItem("avatar") || "/default-avatar.png"
+      chatBox.scrollTop = chatBox.scrollHeight;
     });
+    function showGiftBanner(text){
 
-    console.log("BROADCASTER STARTED:", roomId);
+    const banner =
+        document.getElementById("giftBanner");
 
-  } catch (err) {
-    console.error(err);
-    alert("Camera access denied");
-  }
+    banner.innerText = text;
+    banner.style.display = "block";
+
+    setTimeout(()=>{
+        banner.style.display = "none";
+    },3000);
+
+}
+    function toggleGiftBox() {
+       const popup = document.getElementById("giftPopup");
+             popup.classList.toggle("show");
+
+      }
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const message = input.value.trim();
+      const username = localStorage.getItem("username");
+
+      if (!message) return;
+
+      if (!username) {
+        alert("Please login to chat");
+        return;
+      }
+
+      socket.emit("chat-message", {
+        roomId,
+        user: username,
+        message
+      });
+
+      input.value = "";
+    }
+    document.getElementById("messageInput")
+  .addEventListener("keydown", function(e){
+
+    if(e.key === "Enter"){
+      e.preventDefault();
+      sendMessage();
+    }
+
+});
+ function openSupporterPopup() {
+
+    const popup = document.getElementById("supporterPopup");
+    const supporterList = document.getElementById("supporterList");
+
+    if (!popup || !supporterList) return;
+
+    const allUsers = [
+
+        ...topGifters.map(user => ({
+            username: user.username,
+            avatar: user.avatar || "/default-avatar.png",
+            amount: user.amount || 0,
+            badge: "🏆",
+            label: `${user.amount || 0} Gold`
+        })),
+
+        ...roomUsers
+            .filter(user => !topGifters.some(g => g.username === user.username))
+            .sort((a,b) => {
+           const aLogin = a.username !== "viewer";
+           const bLogin = b.username !== "viewer";
+
+           if(aLogin && !bLogin) return -1;
+           if(!aLogin && bLogin) return 1;
+
+           return 0;
+         })
+           .map(user => ({
+                username: user.username,
+                avatar: user.avatar || "",
+                badge: "👤",
+                label: "Viewer"
+               }))
+    ];
+
+    supporterList.innerHTML = allUsers.map(user => `
+
+        <div class="supporterItem">
+
+            ${
+                user.avatar && user.avatar !== "/default-avatar.png"
+
+                ? `
+                <img
+                    src="${user.avatar}"
+                    class="supporterAvatar"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+
+                <div class="supporterAvatar fakeAvatar" style="display:none;">
+                    ${(user.username || "V")[0].toUpperCase()}
+                </div>
+                `
+
+                : `
+                <div class="supporterAvatar fakeAvatar">
+                    ${(user.username || "V")[0].toUpperCase()}
+                </div>
+                `
+            }
+
+            <div>
+                <div style="font-weight:bold;">
+                    ${user.badge} ${user.username}
+                </div>
+
+                <div style="color:gold;">
+                    ${user.label}
+                </div>
+            </div>
+
+        </div>
+
+    `).join("");
+
+    popup.classList.add("show");
 }
 
-function stopLive() {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
-
-  if (peerConnection) {
-    peerConnection.close();
-    peerConnection = null;
-  }
-
-  socket.emit("stop-live", roomId);
-
-  video.srcObject = null;
-
-  const username = localStorage.getItem("username") || "Streamer";
-
-  const minutes = liveStartTime
-    ? Math.max(1, Math.floor((Date.now() - liveStartTime) / 60000))
-    : 0;
-
-  const viewerText = document.getElementById("viewerCount")?.innerText || "0";
-  const viewers = viewerText.replace(/\D/g, "") || "0";
-
-  window.location.href =
-    `/live-summary.html?room=${encodeURIComponent(roomId)}&streamer=${encodeURIComponent(username)}&minutes=${minutes}&viewers=${viewers}`;
+function closeSupporterPopup() {
+  const popup = document.getElementById("supporterPopup");
+  if (popup) popup.classList.remove("show");
 }
+let topGifters = [];
+let roomUsers = [];
 
-function goProfile() {
-  const profileTarget = roomId;
+function renderTopViewerList() {
+  const row = document.getElementById("topSupporterRow");
+  if (!row) return;
 
-  if (!profileTarget) {
-    window.location.href = "/profile.html";
-    return;
-  }
+  const merged = [];
 
-  window.location.href =
-    "/profile.html?user=" + encodeURIComponent(profileTarget);
-}
-
-socket.on("watcher", async (viewerId) => {
-  console.log("Watcher connected, sending offer", viewerId);
-
-  if (!stream) return;
-
-  peerConnection = new RTCPeerConnection(configuration);
-
-  stream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, stream);
+  topGifters.forEach(user => {
+    if (!merged.some(u => u.username === user.username)) {
+      merged.push({
+        username: user.username,
+        avatar: user.avatar || "/default-avatar.png",
+        badge: "🏆",
+        type: "gifter"
+      });
+    }
   });
 
-  peerConnection.onicecandidate = event => {
-    if (event.candidate) {
-      socket.emit("ice-candidate", viewerId, event.candidate);
+  roomUsers.forEach(user => {
+    if (!merged.some(u => u.username === user.username)) {
+      merged.push({
+        username: user.username,
+        avatar: user.avatar || "/default-avatar.png",
+        badge: "👤",
+        type: "viewer"
+      });
     }
-  };
+  });
+   merged.sort((a, b) => {
+  const aLogin = a.username !== "viewer" && !a.username.startsWith("guest-");
+  const bLogin = b.username !== "viewer" && !b.username.startsWith("guest-");
 
-  const offer = await peerConnection.createOffer();
-  await peerConnection.setLocalDescription(offer);
+  if (aLogin && !bLogin) return -1;
+  if (!aLogin && bLogin) return 1;
 
-  socket.emit("offer", viewerId, peerConnection.localDescription);
+  return 0;
 });
+  const showUsers = merged.slice(0, 3);
+  const extraCount = Math.max(merged.length - 3, 0);
 
-socket.on("offer", async (broadcasterId, description) => {
-  if (!isViewer) return;
+  const newHTML =
+    showUsers.map(user => {
+      const firstLetter = user.username
+        ? user.username[0].toUpperCase()
+        : "V";
 
-  currentBroadcasterId = broadcasterId;
-  remoteStreamSet = false;
+      return `
+        <div class="supporterAvatarBox">
+          <span class="rankBadge">${user.badge}</span>
 
-  console.log("Offer received", description);
+          ${
+  user.avatar && user.avatar !== "/default-avatar.png"
+    ? `<img src="${user.avatar}"
+            class="supporterAvatar"
+            title="${user.username}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+       <div class="supporterAvatar fakeAvatar" style="display:none;">
+         ${firstLetter}
+       </div>`
+    : `<div class="supporterAvatar fakeAvatar" title="${user.username}">
+         ${firstLetter}
+       </div>`
+}
+        </div>
+      `;
+    }).join("") +
+    (extraCount > 0
+      ? `<span id="extraViewerCount">+${extraCount}</span>`
+      : "");
 
-  if (!description || !description.type) return;
+  if (row.innerHTML.trim() === newHTML.trim()) return;
 
-  peerConnection = new RTCPeerConnection(configuration);
+  row.innerHTML = newHTML;
+}
+async function loadMyCoinBalance() {
+  const username = localStorage.getItem("username");
 
-  peerConnection.ontrack = event => {
-    console.log("TRACK RECEIVED");
+  if (!username) return;
 
-    if (remoteStreamSet) return;
-    remoteStreamSet = true;
+  const res = await fetch("/profile/" + username);
+  const data = await res.json();
 
-    video.srcObject = event.streams[0];
-    video.muted = true;
-    video.autoplay = true;
-    video.playsInline = true;
+  document.getElementById("myGold").textContent =
+    data.goldCoins || 0;
 
-    video.onloadedmetadata = () => {
-      video.play()
-        .then(() => console.log("PLAY OK"))
-        .catch(err => console.log("PLAY ERROR", err));
-    };
+  document.getElementById("mySilver").textContent =
+    data.silverCoins || 0;
+}
+  loadMyCoinBalance();
+    async function sendGift(giftId) {
+  const senderUsername = localStorage.getItem("username");
 
-    console.log("VIDEO SET");
-  };
-
-  peerConnection.onicecandidate = event => {
-    if (event.candidate) {
-      socket.emit("ice-candidate", broadcasterId, event.candidate);
-    }
-  };
-
-  await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(description)
-  );
-
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
-
-  socket.emit("answer", broadcasterId, peerConnection.localDescription);
-});
-
-socket.on("answer", async (viewerId, description) => {
-  if (isViewer) return;
-  if (!peerConnection) return;
-
-  if (peerConnection.signalingState !== "have-local-offer") {
-    console.log("Ignore answer, state:", peerConnection.signalingState);
+  if (!senderUsername) {
+    alert("Please login to send gift");
     return;
   }
 
-  await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(description)
-  );
-});
+  const receiverUsername = roomId;
 
-socket.on("ice-candidate", async (id, candidate) => {
-  if (!candidate || !peerConnection) return;
+  const response = await fetch("/send-gift", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      senderUsername,
+      receiverUsername,
+      giftId
+    })
+  });
+  
+  const data = await response.json();
 
-  try {
-    await peerConnection.addIceCandidate(candidate);
-  } catch (err) {
-    console.error("ICE ERROR", err);
+  if (!data.success) {
+    alert(data.message || "Gift failed");
+    return;
   }
-});
+  loadMyCoinBalance();
+  
+}
+function showGiftAnimation(giftId) {
+  const giftBox = document.getElementById("giftAnimation");
 
-socket.on("viewer-count", count => {
-  document.getElementById("viewerCount").innerText = count;
-});
+  const gifts = {
+  rose: "🌹",
+  heart: "💖",
+  star: "⭐",
+  crown: "👑",
+  dragon: "🐉",
+  rocket: "🚀"
+};
 
-socket.on("chat-message", data => {
+  giftBox.style.display = "block";
+  giftBox.innerHTML = `<div class="gift-float">${gifts[giftId] || "🎁"}</div>`;
+
+  setTimeout(() => {
+    giftBox.innerHTML = "";
+    giftBox.style.display = "none";
+  }, 2000);
+}
+
+socket.on("gift-received", data => {
+  if (!data) return;
+
+  showGiftAnimation(data.gift);
+
+  showGiftBanner(
+    `🎉 ${data.sender} sent ${data.gift}`
+  );
+
   const chatBox = document.getElementById("chatBox");
 
-  chatBox.innerHTML +=
-    `<p><b>${data.user}</b>: ${data.message}</p>`;
-});
+  if (chatBox) {
+    chatBox.innerHTML += `
+      <div class="gift-chat-message">
+        🎁 <b>${data.sender}</b> sent <b>${data.gift}</b>
+      </div>
+    `;
 
-function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const message = input.value.trim();
-  const username = localStorage.getItem("username");
-
-  if (!message) return;
-
-  if (!username) {
-    alert("Please login to chat");
-    return;
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
+  loadMyCoinBalance();
+});
+socket.on("top-gifters-update", data => {
+  console.log("TOP GIFTERS UPDATE:", data);
 
-  socket.emit("chat-message", {
-    roomId,
-    user: username,
-    message
-  });
+  topGifters = data || [];
 
-  input.value = "";
-}
-</script>
+  renderTopViewerList();
+});
+  </script>
 
 </body>
 </html>

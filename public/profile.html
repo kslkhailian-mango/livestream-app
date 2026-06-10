@@ -1,348 +1,677 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Profile</title>
+  <title>Penglam Profile</title>
   <style>
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:#111;
-      color:white;
-      min-height:100vh;
+    body {
+      margin: 0;
+      background: #111827;
+      font-family: Arial, sans-serif;
     }
 
-    .navbar{
-      background:#222;
-      padding:15px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+    .phone {
+  width: min(100vw, 520px);
+  min-height: 100vh;
+  margin: auto;
+  background: #f7f4e9;
+  overflow: hidden;
+}
+    .cover {
+  width: 100%;
+  height: 260px;
+  position: relative;
+  overflow: hidden;
+}
+
+#coverPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+    .topNav {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 5;
     }
 
-    .logo{
-      color:#00d4ff;
-      font-size:24px;
-      font-weight:bold;
+    .navBtn {
+      background: rgba(0,0,0,0.35);
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 34px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    .profile-card{
-      width:350px;
-      margin:40px auto;
-      padding:25px;
-      text-align:center;
-      background:#1b1b1b;
-      border-radius:18px;
-      box-shadow:0 0 20px cyan;
+    .profileBody {
+      padding: 0 22px 25px;
+      margin-top: -85px;
+      position: relative;
+      z-index: 10;
     }
 
-    .stats{
-      display:flex;
-      justify-content:space-between;
-      margin:20px 0;
+    .avatarRow {
+      display: flex;
+      align-items: end;
+      gap: 14px;
     }
 
-    .stats div{
-      background:#222;
-      padding:10px;
-      border-radius:12px;
-      width:30%;
+    .avatarBox {
+      position: relative;
     }
 
-    button{
-      margin:6px;
-      padding:10px 14px;
-      border:none;
-      border-radius:8px;
-      background:cyan;
-      cursor:pointer;
-      font-weight:bold;
+    #profileAvatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid white;
+      object-fit: cover;
+      background: #111;
     }
 
-    input{
-      padding:8px;
-      border-radius:5px;
-      border:none;
-      margin:5px;
+    .levelMini {
+      position: absolute;
+      right: 0;
+      bottom: 10px;
+      background: #3b82f6;
+      color: white;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: bold;
     }
 
-    textarea{
-      width:90%;
-      height:70px;
-      border-radius:8px;
-      padding:10px;
+    .nameArea h1 {
+      margin: 0;
+      color: #f59e0b;
+      font-size: 26px;
+    }
+     
+    .nameFrame{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    min-width:140px;
+    max-width:220px;
+    transform: translateY(-25px);
+
+    padding:8px 20px;
+
+    border-radius:20px;
+    background:rgba(255,255,255,.95);
+    border:2px solid #8b5cf6;
+
+    overflow:hidden;
+}
+
+.nameFrame h1{
+    margin:0;
+    font-size:28px;
+    font-weight:800;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+
+    color:#f59e0b;
+
+    text-shadow: 0 0 5px rgba(245,158,11,.4);
+}
+
+   .profileId {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  background: rgba(255,255,255,0.92);
+  color: #4b5563;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  padding: 5px 11px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(139,92,246,0.35);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+
+  margin-top: 6px;
+  margin-left: 15px;
+}
+    .blue { background: #3b82f6; }
+    .gold { background: #f59e0b; }
+    .purple { background: #6366f1; }
+    .green { background: #10b981; }
+
+    .actionRow {
+      display: flex;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .actionRow button,
+    .bottomBtns button {
+      flex: 1;
+      border: none;
+      padding: 12px;
+      border-radius: 13px;
+      background: #1f2937;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 26px;
+      font-size: 22px;
+      margin: 18px 0;
+    }
+
+    .tab {
+      color: #888;
+      font-weight: bold;
+    }
+
+    .tab.active {
+      color: #111;
+      border-bottom: 3px solid #7c3aed;
+      padding-bottom: 8px;
+    }
+
+    .coinRow {
+      display: flex;
+      gap: 12px;
+    }
+
+    .coinCard {
+      flex: 1;
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .coinCard h2 {
+      margin: 10px 0 0;
+      font-size: 28px;
+    }
+
+    .goldText { color: #f59e0b; }
+    .silverText { color: #6366f1; }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .statBox {
+      flex: 1;
+      background: white;
+      border-radius: 16px;
+      padding: 14px 5px;
+      text-align: center;
+    }
+
+    .statBox b {
+      font-size: 22px;
+    }
+
+    .statBox div {
+      color: #777;
+      font-size: 12px;
+    }
+
+    .levelIcon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #facc15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .levelCard h2 {
+      margin: 0;
+    }
+    .levelCard {
+  background: #1f2937;
+  color: white;
+  padding: 16px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.levelCard::after {
+  content: "🐘";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 90px;
+  opacity: 0.20;
+
+  pointer-events: none;
+}
+
+.levelCard > * {
+  position: relative;
+  z-index: 1;
+}
+    .progress {
+      width: 130px;
+      height: 7px;
+      background: #6b7280;
+      border-radius: 20px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress div {
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+    }
+
+    .topFans {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 15px;
+    }
+
+    .topFans h3 {
+      margin-top: 0;
+      letter-spacing: 2px;
+    }
+
+    .noFans {
+      background: #f3f0e7;
+      border-radius: 14px;
+      padding: 14px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    .gameBtn {
+      background: linear-gradient(90deg, #f59e0b, #facc15);
+      color: white;
+      padding: 18px;
+      border-radius: 16px;
+      margin: 18px 0;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .bottomBtns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .cyan { background: #06b6d4 !important; }
+    .pink { background: #fb7185 !important; }
+
+    input[type="file"] {
+      display: none;
     }
   </style>
 </head>
 
 <body>
+  <div class="phone">
 
-<div class="navbar">
-  <div class="logo">🔥 Penglam Live</div>
+    <div class="cover">
+      <img id="coverPhoto" src="">
+      <div class="topNav">
+        <div class="navBtn" onclick="goBack()">‹</div>
+        <div class="navBtn">⚙</div>
+      </div>
+    </div>
 
-  <div>
-    <button onclick="goHome()">Home</button>
-    <button onclick="goLive()">Go Live</button>
-    <button onclick="logout()">Logout</button>
+    <div class="profileBody">
+
+       <div class="avatarRow">
+           <div class="avatarBox">
+                <img id="profileAvatar">
+
+                <div id="profileId" class="profileId">
+                     ID:761343
+                </div>
+           </div>
+
+
+           <div class="nameFrame">
+               <h1 id="profileUsername">mango</h1>
+           </div>
+          
+           <div class="badgeRow">
+               <span class="badge blue">💎36</span>
+
+               <span class="badge gold vipCenter">VIP 5</span>
+
+               <span class="badge purple">💎66</span>
+           </div>
+
+           <div class="guildRow">
+               <span class="badge green">Penglam</span>
+           </div>
+
+       </div>
+
+    </div>
+
+      <div class="actionRow">
+        <button id="changeAvatarBtn" onclick="avatarInput.click()">Change Avatar</button>
+        <button id="changeCoverBtn" onclick="coverInput.click()">Change Cover</button>
+      </div>
+
+      <input type="file" id="avatarInput" accept="image/*">
+      <input type="file" id="coverInput" accept="image/*">
+
+      <div class="tabs">
+        <div class="tab active">Profile</div>
+        <div class="tab">Honor wall</div>
+      </div>
+
+      <div class="coinRow">
+        <div class="coinCard">
+          🟡 Gold Coin
+          <h2 class="goldText" id="goldCoins">0</h2>
+        </div>
+        <div class="coinCard">
+          🥈 Silver Coin
+          <h2 class="silverText" id="silverCoins">0</h2>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="statBox">
+          <b id="followers">0</b>
+          <div>Followers</div>
+        </div>
+        <div class="statBox">
+          <b id="following">0</b>
+          <div>Following</div>
+        </div>
+        <div class="statBox">
+          <b id="visitors">0</b>
+          <div>Visitors</div>
+        </div>
+      </div>
+
+      <div class="levelCard">
+        <div class="levelIcon">👑</div>
+        <div>
+          <h2 id="levelName">User</h2>
+          <b>Lv.2 • Rising Star</b>
+          <div class="progress"><div></div></div>
+        </div>
+      </div>
+
+      <div class="topFans">
+        <h3>TOP FANS 👁 🏆</h3>
+        <div id="topFansBox" class="noFans">
+          No fans yet<br>
+          Send gifts to become top fan
+        </div>
+      </div>
+
+      <div class="gameBtn">🏅 Ludo 🎲</div>
+
+      <div class="bottomBtns">
+        <button id="editProfileBtn" class="cyan" onclick="editProfile()">Edit Profile</button>
+        <button id="goLiveBtn" class="cyan" onclick="goLive()">Go Live</button>
+        <button class="cyan" onclick="goHome()">Home</button>
+        <button id="logoutBtn" class="pink" onclick="logout()">Logout</button>
+      </div>
+
+      <div style="height:35px;"></div>
+    </div>
   </div>
-</div>
-
-<div class="profile-card">
-
-  <img
-    id="avatar"
-    src="/default-avatar.png"
-    width="130"
-    height="130"
-    alt="avatar"
-    style="border-radius:50%; object-fit:cover;"
-  >
-
-  <h2 id="profileUsername">Loading...</h2>
-  <p id="bio"></p>
-
-  <button id="followBtn" onclick="followUser()">Follow</button>
-  <button id="unfollowBtn" onclick="unfollowUser()" style="display:none;">Unfollow</button>
-
-  <div class="stats">
-    <div><h3 id="followers">0</h3><p>Followers</p></div>
-    <div><h3 id="following">0</h3><p>Following</p></div>
-    <div><h3 id="coins">0</h3><p>Coins</p></div>
-  </div>
-
-  <button onclick="addCoins(100)">+100 Coins</button>
-
-  <h3>Edit Profile</h3>
-
-  <input type="file" id="avatarFile">
-  <button onclick="uploadAvatar()">Upload Photo</button>
-
-  <br><br>
-
-  <textarea id="bioInput" placeholder="Write your bio"></textarea>
-  <br>
-  <button onclick="updateProfile()">Save Bio</button>
-
-  <h3>Send Gift</h3>
-
-  <div id="giftBox">
-    <button onclick="sendGift('Rose 🌹',10)">Rose 🌹 +10</button>
-    <button onclick="sendGift('Heart 💗',50)">Heart 💗 +50</button>
-    <button onclick="sendGift('Lion 🦁',1000)">Lion 🦁 +1000</button>
-  </div>
-
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
 
 <script>
-const socket = io();
+  const params = new URLSearchParams(window.location.search);
 
-const currentUser = localStorage.getItem("username");
-const params = new URLSearchParams(window.location.search);
-const profileUser = params.get("user") || currentUser;
+  const profileUsername =
+    params.get("username") ||
+    params.get("user") ||
+    localStorage.getItem("username");
 
-function goHome() {
-  window.location.href = "/home.html";
-}
+  const currentUser = localStorage.getItem("username");
 
-function goLive() {
-  if (!currentUser) {
-    window.location.href = "/home.html";
-    return;
-  }
+  const forceVisitor = params.get("visitor") === "1";
 
-  window.location.href =
-    "/index.html?room=" + encodeURIComponent(currentUser);
-}
+  const isMyProfile =
+    !forceVisitor &&
+    currentUser === profileUsername;
 
-function logout() {
-  localStorage.clear();
-  window.location.href = "/home.html";
-}
-
-async function loadProfile() {
-  if (!profileUser) {
-    alert("Please login first");
-    window.location.href = "/home.html";
-    return;
-  }
-
-  const res = await fetch(`/profile/${profileUser}`);
-  const data = await res.json();
-
-  if (!data.success) {
+  if (!profileUsername) {
     alert("Profile not found");
-    return;
+    window.location.href = "/login.html";
   }
 
-  document.getElementById("profileUsername").innerText = data.username;
-
-  const avatarImg = document.getElementById("avatar");
-  avatarImg.src = data.avatar || "/default-avatar.png";
-  avatarImg.onerror = function () {
-    this.onerror = null;
-    this.src = "/default-avatar.png";
-  };
-
-  document.getElementById("followers").innerText = data.followers || 0;
-  document.getElementById("following").innerText = data.following || 0;
-  document.getElementById("coins").innerText = data.coins || 0;
-  document.getElementById("bio").innerText = data.bio || "";
-  document.getElementById("bioInput").value = data.bio || "";
-
-  const followBtn = document.getElementById("followBtn");
-  const unfollowBtn = document.getElementById("unfollowBtn");
-
-  if (!currentUser || currentUser === profileUser) {
-    followBtn.style.display = "none";
-    unfollowBtn.style.display = "none";
-    return;
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
   }
 
-  if ((data.followersList || []).includes(currentUser)) {
-    followBtn.style.display = "none";
-    unfollowBtn.style.display = "inline-block";
-  } else {
-    followBtn.style.display = "inline-block";
-    unfollowBtn.style.display = "none";
+  function setImage(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.src = value;
   }
-}
 
-async function followUser() {
-  const res = await fetch(`/follow/${profileUser}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      currentUser
-    })
+  async function loadProfile() {
+    try {
+      const res = await fetch(`/profile/${profileUsername}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        alert("Profile not found");
+        return;
+      }
+
+      setText("profileUsername", data.username || profileUsername);
+      setText("levelName", data.username || profileUsername);
+      setText("profileId", "🆔 " + (data.userId || "000000"));
+
+      setImage("profileAvatar", data.avatar || "/default-avatar.png");
+
+      const coverPhoto = document.getElementById("coverPhoto");
+
+      if (coverPhoto) {
+        if (data.cover && data.cover !== "/default-cover.jpg") {
+          coverPhoto.src = data.cover;
+          coverPhoto.style.display = "block";
+        } else {
+          coverPhoto.style.display = "none";
+        }
+      }
+
+      setText("goldCoins", data.goldCoins || 0);
+      setText("silverCoins", data.silverCoins || 0);
+      setText("followers", data.followers || 0);
+      setText("following", data.following || 0);
+      setText("visitors", data.visitors || 0);
+
+      setText("levelBadge", "Lv." + (data.level || 1));
+      setText("vipBadge", "VIP " + (data.vip || 0));
+      setText("diamondBadge", data.diamonds || 0);
+
+      renderTopFans(data.topFans || []);
+
+      applyVisitorMode();
+
+      console.log("Profile Loaded:", data);
+
+    } catch (err) {
+      console.error("Load profile error:", err);
+    }
+  }
+
+  function renderTopFans(fans) {
+    const box = document.getElementById("topFansBox");
+    if (!box) return;
+
+    if (!fans || fans.length === 0) {
+      box.innerHTML = `
+        No fans yet<br>
+        Send gifts to become top fan
+      `;
+      return;
+    }
+
+    box.className = "";
+    box.innerHTML = fans.map((fan, index) => `
+      <div style="display:flex;align-items:center;gap:10px;margin:8px 0;">
+        <b>#${index + 1}</b>
+        <img src="${fan.avatar || "/default-avatar.png"}"
+             style="width:35px;height:35px;border-radius:50%;object-fit:cover;">
+        <span>${fan.username}</span>
+        <b style="margin-left:auto;">${fan.amount}</b>
+      </div>
+    `).join("");
+  }
+
+  function applyVisitorMode() {
+    if (isMyProfile) return;
+
+    const hideIds = [
+      "changeAvatarBtn",
+      "changeCoverBtn",
+      "editProfileBtn",
+      "goLiveBtn",
+      "logoutBtn",
+      "avatarInput",
+      "coverInput"
+    ];
+
+    hideIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+
+    document.querySelectorAll("button").forEach(btn => {
+      const text = btn.innerText.trim().toLowerCase();
+
+      if (
+        text.includes("change avatar") ||
+        text.includes("change cover") ||
+        text.includes("edit profile") ||
+        text.includes("go live") ||
+        text.includes("logout")
+      ) {
+        btn.style.display = "none";
+      }
+    });
+  }
+
+  async function uploadImage(type, file) {
+    if (!isMyProfile) {
+      alert("You cannot edit this profile");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("username", currentUser);
+    formData.append("type", type);
+
+    try {
+      const res = await fetch("/upload-profile-image", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Upload failed");
+        return;
+      }
+
+      if (type === "avatar") {
+        setImage("profileAvatar", data.url);
+      }
+
+      if (type === "cover") {
+        const cover = document.getElementById("coverPhoto");
+        if (cover) {
+          cover.src = data.url;
+          cover.style.display = "block";
+        }
+      }
+
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Upload error");
+    }
+  }
+
+  document.getElementById("avatarInput").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (file) uploadImage("avatar", file);
   });
 
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("followers").innerText = data.followers;
-    document.getElementById("followBtn").style.display = "none";
-    document.getElementById("unfollowBtn").style.display = "inline-block";
-  } else {
-    alert(data.message || "Follow failed");
-  }
-}
-
-async function unfollowUser() {
-  const res = await fetch(`/unfollow/${profileUser}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      currentUser
-    })
+  document.getElementById("coverInput").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (file) uploadImage("cover", file);
   });
 
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("followers").innerText = data.followers;
-    document.getElementById("followBtn").style.display = "inline-block";
-    document.getElementById("unfollowBtn").style.display = "none";
-  } else {
-    alert(data.message || "Unfollow failed");
-  }
-}
-
-async function updateProfile() {
-  const bio = document.getElementById("bioInput").value;
-
-  const res = await fetch(`/update-profile/${currentUser}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ bio })
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    alert("Profile Updated");
-    loadProfile();
-  } else {
-    alert("Update Failed");
-  }
-}
-
-async function uploadAvatar() {
-  const file = document.getElementById("avatarFile").files[0];
-
-  if (!file) {
-    alert("Please select photo");
-    return;
+  function goBack() {
+    history.back();
   }
 
-  const formData = new FormData();
-  formData.append("avatar", file);
-  formData.append("username", currentUser);
-
-  const res = await fetch("/upload-avatar", {
-    method: "POST",
-    body: formData
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("avatar").src = data.avatar;
-    localStorage.setItem("avatar", data.avatar);
-    alert("Photo uploaded!");
+  function goHome() {
+    window.location.href = "/home.html";
   }
-}
 
-async function addCoins(amount) {
-  const res = await fetch(`/add-coins/${profileUser}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ amount })
-  });
+  function goLive() {
+    if (!currentUser) {
+      alert("Please login first");
+      window.location.href = "/login.html";
+      return;
+    }
 
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("coins").innerText = data.coins;
-  } else {
-    alert("Failed");
+    window.location.href =
+      `/index.html?room=${encodeURIComponent(currentUser)}`;
   }
-}
 
-async function sendGift(giftName, amount) {
-  const res = await fetch(`/send-gift/${profileUser}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ giftName, amount })
-  });
+  function editProfile() {
+    if (!isMyProfile) {
+      alert("You cannot edit this profile");
+      return;
+    }
 
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("coins").innerText = data.coins;
+    alert("Edit Profile page next");
   }
-}
 
-socket.on("gift-received", data => {
-  const giftBox = document.getElementById("giftBox");
-
-  if (giftBox) {
-    giftBox.innerHTML +=
-      `<p>${data.username} received ${data.giftName} +${data.amount} coins</p>`;
+  function logout() {
+    localStorage.removeItem("username");
+    window.location.href = "/login.html";
   }
-});
 
-loadProfile();
+  loadProfile();
 </script>
 
 </body>
