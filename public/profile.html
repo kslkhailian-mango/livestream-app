@@ -3,6 +3,8 @@
 <head>
   <title>Penglam Profile</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       background: #111827;
@@ -10,24 +12,26 @@
     }
 
     .phone {
-  width: min(100vw, 520px);
-  min-height: 100vh;
-  margin: auto;
-  background: #f7f4e9;
-  overflow: hidden;
-}
-    .cover {
-  width: 100%;
-  height: 260px;
-  position: relative;
-  overflow: hidden;
-}
+      width: min(100vw, 520px);
+      min-height: 100vh;
+      margin: auto;
+      background: #f7f4e9;
+      overflow: hidden;
+    }
 
-#coverPhoto {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .cover {
+      width: 100%;
+      height: 260px;
+      position: relative;
+      overflow: hidden;
+      background: #222;
+    }
+
+    #coverPhoto {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     .topNav {
       position: absolute;
@@ -52,20 +56,29 @@
     }
 
     .profileBody {
-      padding: 0 22px 25px;
-      margin-top: -85px;
+      padding: 0 22px 28px;
+      margin-top: -82px;
       position: relative;
       z-index: 10;
     }
 
-    .avatarRow {
+    .profileTop {
       display: flex;
-      align-items: end;
+      align-items: flex-end;
       gap: 14px;
+    }
+
+    .avatarSide {
+      width: 130px;
+      text-align: center;
+      flex-shrink: 0;
     }
 
     .avatarBox {
       position: relative;
+      width: 120px;
+      height: 120px;
+      margin: auto;
     }
 
     #profileAvatar {
@@ -80,7 +93,7 @@
     .levelMini {
       position: absolute;
       right: 0;
-      bottom: 10px;
+      bottom: 8px;
       background: #3b82f6;
       color: white;
       font-size: 12px;
@@ -89,85 +102,113 @@
       font-weight: bold;
     }
 
-    .nameArea h1 {
-      margin: 0;
-      color: #f59e0b;
-      font-size: 26px;
+    .profileId {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 6px;
+      background: rgba(255,255,255,0.95);
+      color: #4b5563;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(139,92,246,0.35);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     }
-     
+
+    .nameSide{
+    flex:1;
+    min-width:0;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    margin-top:20px;   /* အောက်ကိုချ */
+    transform: translateX(-60px);
+}
+
     .nameFrame{
+    width:100%;
+    max-width:245px;
+
     display:flex;
     align-items:center;
     justify-content:center;
 
-    min-width:140px;
-    max-width:220px;
-    transform: translateY(-25px);
-
-    padding:8px 20px;
+    padding:10px 18px;
 
     border-radius:20px;
-    background:rgba(255,255,255,.95);
+    background:#fff;
     border:2px solid #8b5cf6;
 
-    overflow:hidden;
+    margin-bottom:8px;
 }
+    .nameFrame h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #f59e0b;
+      text-shadow: 0 0 5px rgba(245,158,11,.35);
+    }
 
-.nameFrame h1{
-    margin:0;
-    font-size:28px;
-    font-weight:800;
+    .badgeRow {
+      margin-top: 2px;
+      text-align: center;
+    }
 
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    .vipBadge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #f59e0b, #facc15);
+      color: white;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 5px 13px;
+      border-radius: 999px;
+      box-shadow: 0 3px 10px rgba(245,158,11,.35);
+    }
 
-    color:#f59e0b;
+    .guildRow {
+      margin-top: 8px;
+      text-align: center;
+    }
 
-    text-shadow: 0 0 5px rgba(245,158,11,.4);
-}
-
-   .profileId {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-
-  background: rgba(255,255,255,0.92);
-  color: #4b5563;
-
-  font-size: 13px;
-  font-weight: 800;
-
-  padding: 5px 11px;
-  border-radius: 999px;
-
-  border: 1px solid rgba(139,92,246,0.35);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-
-  margin-top: 6px;
-  margin-left: 15px;
-}
-    .blue { background: #3b82f6; }
-    .gold { background: #f59e0b; }
-    .purple { background: #6366f1; }
-    .green { background: #10b981; }
-
+    .guildBadge {
+      display: inline-flex;
+      background: #10b981;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    
     .actionRow {
       display: flex;
       gap: 12px;
       margin: 18px 0;
     }
 
+    button {
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     .actionRow button,
     .bottomBtns button {
       flex: 1;
-      border: none;
       padding: 12px;
       border-radius: 13px;
       background: #1f2937;
       color: white;
-      font-weight: bold;
-      cursor: pointer;
     }
 
     .tabs {
@@ -224,13 +265,40 @@
       text-align: center;
     }
 
-    .statBox b {
-      font-size: 22px;
-    }
+    .statBox b { font-size: 22px; }
 
     .statBox div {
       color: #777;
       font-size: 12px;
+    }
+
+    .levelCard {
+      background: #1f2937;
+      color: white;
+      padding: 16px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 18px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .levelCard::after {
+      content: "🐘";
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 90px;
+      opacity: 0.20;
+      pointer-events: none;
+    }
+
+    .levelCard > * {
+      position: relative;
+      z-index: 1;
     }
 
     .levelIcon {
@@ -242,42 +310,11 @@
       align-items: center;
       justify-content: center;
       font-size: 28px;
+      flex-shrink: 0;
     }
 
-    .levelCard h2 {
-      margin: 0;
-    }
-    .levelCard {
-  background: #1f2937;
-  color: white;
-  padding: 16px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 18px 0;
+    .levelCard h2 { margin: 0; }
 
-  position: relative;
-  overflow: hidden;
-}
-
-.levelCard::after {
-  content: "🐘";
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-
-  font-size: 90px;
-  opacity: 0.20;
-
-  pointer-events: none;
-}
-
-.levelCard > * {
-  position: relative;
-  z-index: 1;
-}
     .progress {
       width: 130px;
       height: 7px;
@@ -339,10 +376,12 @@
 </head>
 
 <body>
+
   <div class="phone">
 
     <div class="cover">
       <img id="coverPhoto" src="">
+
       <div class="topNav">
         <div class="navBtn" onclick="goBack()">‹</div>
         <div class="navBtn">⚙</div>
@@ -351,35 +390,34 @@
 
     <div class="profileBody">
 
-       <div class="avatarRow">
-           <div class="avatarBox">
-                <img id="profileAvatar">
+      <div class="profileTop">
 
-                <div id="profileId" class="profileId">
-                     ID:761343
-                </div>
-           </div>
+        <div class="avatarSide">
+          <div class="avatarBox">
+            <img id="profileAvatar" src="">
+            <div class="levelMini" id="levelMini">Lv.2</div>
+          </div>
 
+          <div id="profileId" class="profileId">
+            ID:761343
+          </div>
+        </div>
 
-           <div class="nameFrame">
-               <h1 id="profileUsername">mango</h1>
-           </div>
-          
-           <div class="badgeRow">
-               <span class="badge blue">💎36</span>
+        <div class="nameSide">
+          <div class="nameFrame">
+            <h1 id="profileUsername">mango</h1>
+          </div>
 
-               <span class="badge gold vipCenter">VIP 5</span>
+          <div class="badgeRow">
+            <span class="vipBadge">💎 VIP penglam 💎</span>
+          </div>
 
-               <span class="badge purple">💎66</span>
-           </div>
+          <div class="guildRow">
+            <span class="guildBadge">Guild : Penglam</span>
+          </div>
+        </div>
 
-           <div class="guildRow">
-               <span class="badge green">Penglam</span>
-           </div>
-
-       </div>
-
-    </div>
+      </div>
 
       <div class="actionRow">
         <button id="changeAvatarBtn" onclick="avatarInput.click()">Change Avatar</button>
@@ -399,6 +437,7 @@
           🟡 Gold Coin
           <h2 class="goldText" id="goldCoins">0</h2>
         </div>
+
         <div class="coinCard">
           🥈 Silver Coin
           <h2 class="silverText" id="silverCoins">0</h2>
@@ -410,10 +449,12 @@
           <b id="followers">0</b>
           <div>Followers</div>
         </div>
+
         <div class="statBox">
           <b id="following">0</b>
           <div>Following</div>
         </div>
+
         <div class="statBox">
           <b id="visitors">0</b>
           <div>Visitors</div>
@@ -422,6 +463,7 @@
 
       <div class="levelCard">
         <div class="levelIcon">👑</div>
+
         <div>
           <h2 id="levelName">User</h2>
           <b>Lv.2 • Rising Star</b>
@@ -431,6 +473,7 @@
 
       <div class="topFans">
         <h3>TOP FANS 👁 🏆</h3>
+
         <div id="topFansBox" class="noFans">
           No fans yet<br>
           Send gifts to become top fan
@@ -447,195 +490,103 @@
       </div>
 
       <div style="height:35px;"></div>
+
     </div>
+
   </div>
 
-<script>
+  <script>
+  const API_BASE = "http://localhost:3000";
+
   const params = new URLSearchParams(window.location.search);
 
   const profileUsername =
     params.get("username") ||
     params.get("user") ||
-    localStorage.getItem("username");
+    params.get("room") ||
+    localStorage.getItem("username") ||
+    "mango";
 
-  const currentUser = localStorage.getItem("username");
-
-  const forceVisitor = params.get("visitor") === "1";
-
-  const isMyProfile =
-    !forceVisitor &&
-    currentUser === profileUsername;
-
-  if (!profileUsername) {
-    alert("Profile not found");
-    window.location.href = "/login.html";
-  }
-
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = value;
-  }
-
-  function setImage(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.src = value;
-  }
+  const loginUsername = localStorage.getItem("username");
+  const isOwner = loginUsername === profileUsername;
 
   async function loadProfile() {
     try {
-      const res = await fetch(`/profile/${profileUsername}`);
-      const data = await res.json();
+      const res = await fetch(`${API_BASE}/profile/${profileUsername}`);
+      const user = await res.json();
 
-      if (!data.success) {
-        alert("Profile not found");
-        return;
+      document.getElementById("profileUsername").textContent =
+        user.username || profileUsername;
+
+      document.getElementById("profileId").textContent =
+        "ID:" + (user.userId || "761343");
+
+      document.getElementById("profileAvatar").src =
+        user.avatar || "https://via.placeholder.com/150";
+
+      document.getElementById("coverPhoto").src =
+        user.cover || "https://picsum.photos/600/300";
+
+      document.getElementById("goldCoins").textContent =
+        user.goldCoins || 0;
+
+      document.getElementById("silverCoins").textContent =
+        user.silverCoins || 0;
+
+      document.getElementById("followers").textContent =
+        user.followers || 0;
+
+      document.getElementById("following").textContent =
+        user.following || 0;
+
+      document.getElementById("visitors").textContent =
+        user.visitors || 0;
+
+      document.getElementById("levelName").textContent =
+        user.levelName || "User";
+
+      if (!isOwner) {
+        document.getElementById("changeAvatarBtn").style.display = "none";
+        document.getElementById("changeCoverBtn").style.display = "none";
+        document.getElementById("editProfileBtn").style.display = "none";
+        document.getElementById("goLiveBtn").style.display = "none";
       }
-
-      setText("profileUsername", data.username || profileUsername);
-      setText("levelName", data.username || profileUsername);
-      setText("profileId", "🆔 " + (data.userId || "000000"));
-
-      setImage("profileAvatar", data.avatar || "/default-avatar.png");
-
-      const coverPhoto = document.getElementById("coverPhoto");
-
-      if (coverPhoto) {
-        if (data.cover && data.cover !== "/default-cover.jpg") {
-          coverPhoto.src = data.cover;
-          coverPhoto.style.display = "block";
-        } else {
-          coverPhoto.style.display = "none";
-        }
-      }
-
-      setText("goldCoins", data.goldCoins || 0);
-      setText("silverCoins", data.silverCoins || 0);
-      setText("followers", data.followers || 0);
-      setText("following", data.following || 0);
-      setText("visitors", data.visitors || 0);
-
-      setText("levelBadge", "Lv." + (data.level || 1));
-      setText("vipBadge", "VIP " + (data.vip || 0));
-      setText("diamondBadge", data.diamonds || 0);
-
-      renderTopFans(data.topFans || []);
-
-      applyVisitorMode();
-
-      console.log("Profile Loaded:", data);
 
     } catch (err) {
-      console.error("Load profile error:", err);
+      console.log("Profile load error:", err);
     }
   }
 
-  function renderTopFans(fans) {
-    const box = document.getElementById("topFansBox");
-    if (!box) return;
-
-    if (!fans || fans.length === 0) {
-      box.innerHTML = `
-        No fans yet<br>
-        Send gifts to become top fan
-      `;
-      return;
-    }
-
-    box.className = "";
-    box.innerHTML = fans.map((fan, index) => `
-      <div style="display:flex;align-items:center;gap:10px;margin:8px 0;">
-        <b>#${index + 1}</b>
-        <img src="${fan.avatar || "/default-avatar.png"}"
-             style="width:35px;height:35px;border-radius:50%;object-fit:cover;">
-        <span>${fan.username}</span>
-        <b style="margin-left:auto;">${fan.amount}</b>
-      </div>
-    `).join("");
-  }
-
-  function applyVisitorMode() {
-    if (isMyProfile) return;
-
-    const hideIds = [
-      "changeAvatarBtn",
-      "changeCoverBtn",
-      "editProfileBtn",
-      "goLiveBtn",
-      "logoutBtn",
-      "avatarInput",
-      "coverInput"
-    ];
-
-    hideIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = "none";
-    });
-
-    document.querySelectorAll("button").forEach(btn => {
-      const text = btn.innerText.trim().toLowerCase();
-
-      if (
-        text.includes("change avatar") ||
-        text.includes("change cover") ||
-        text.includes("edit profile") ||
-        text.includes("go live") ||
-        text.includes("logout")
-      ) {
-        btn.style.display = "none";
-      }
-    });
-  }
-
-  async function uploadImage(type, file) {
-    if (!isMyProfile) {
-      alert("You cannot edit this profile");
-      return;
-    }
+  avatarInput.addEventListener("change", async () => {
+    const file = avatarInput.files[0];
+    if (!file) return;
 
     const formData = new FormData();
-    formData.append("image", file);
-    formData.append("username", currentUser);
-    formData.append("type", type);
+    formData.append("avatar", file);
+    formData.append("username", profileUsername);
 
-    try {
-      const res = await fetch("/upload-profile-image", {
-        method: "POST",
-        body: formData
-      });
+    await fetch(`${API_BASE}/upload-avatar`, {
+      method: "POST",
+      body: formData
+    });
 
-      const data = await res.json();
-
-      if (!data.success) {
-        alert(data.message || "Upload failed");
-        return;
-      }
-
-      if (type === "avatar") {
-        setImage("profileAvatar", data.url);
-      }
-
-      if (type === "cover") {
-        const cover = document.getElementById("coverPhoto");
-        if (cover) {
-          cover.src = data.url;
-          cover.style.display = "block";
-        }
-      }
-
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("Upload error");
-    }
-  }
-
-  document.getElementById("avatarInput").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (file) uploadImage("avatar", file);
+    loadProfile();
   });
 
-  document.getElementById("coverInput").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (file) uploadImage("cover", file);
+  coverInput.addEventListener("change", async () => {
+    const file = coverInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("cover", file);
+    formData.append("username", profileUsername);
+
+    await fetch(`${API_BASE}/upload-cover`, {
+      method: "POST",
+      body: formData
+    });
+
+    loadProfile();
   });
 
   function goBack() {
@@ -643,36 +594,23 @@
   }
 
   function goHome() {
-    window.location.href = "/home.html";
+    window.location.href = "home.html";
   }
 
   function goLive() {
-    if (!currentUser) {
-      alert("Please login first");
-      window.location.href = "/login.html";
-      return;
-    }
-
-    window.location.href =
-      `/index.html?room=${encodeURIComponent(currentUser)}`;
+    window.location.href = "index.html?room=" + loginUsername;
   }
 
   function editProfile() {
-    if (!isMyProfile) {
-      alert("You cannot edit this profile");
-      return;
-    }
-
-    alert("Edit Profile page next");
+    alert("Edit Profile coming soon");
   }
 
   function logout() {
-    localStorage.removeItem("username");
-    window.location.href = "/login.html";
+    localStorage.clear();
+    window.location.href = "login.html";
   }
 
   loadProfile();
 </script>
-
 </body>
 </html>
