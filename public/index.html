@@ -453,7 +453,7 @@ input {
 
   <div id="videoOverlay">
 
-    <div id="hostProfileBtn" onclick="window.location.href='/profile.html?username=' + encodeURIComponent(new URLSearchParams(window.location.search).get('room')) + '&visitor=1'">
+    <div id="hostProfileBtn" onclick="goHostProfile()">
       <img id="hostAvatar" src="default-avatar.png">
       <span id="hostName">Host</span>
     </div>
@@ -515,6 +515,7 @@ input {
 </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/profile-nav.js"></script>
 
   <script>
     const socket = io({
@@ -635,18 +636,6 @@ function goHome() {
     window.location.href = "home.html";
 }
 
-function goHostProfile() {
-  const params = new URLSearchParams(window.location.search);
-  const room = params.get("room");
-
-  if (!room) {
-    alert("Host not found");
-    return;
-  }
-
-  window.location.href =
-    `/profile.html?username=${encodeURIComponent(room)}&visitor=1`;
-}
     function stopLive() {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
