@@ -44,6 +44,11 @@ async function register() {
         alert("Register Failed");
     }
 }
+document.getElementById("password").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        register();
+    }
+});
 </script>
 
 </body>

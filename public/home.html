@@ -15,7 +15,61 @@ body {
     color: white;
     position: relative;
 }
+  .popupOverlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.65);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
 
+.popupBox{
+    width:340px;
+    max-width:90%;
+    background:#1b1f38;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 0 25px rgba(0,255,255,.35);
+    position:relative;
+}
+
+.popupBox h2{
+    text-align:center;
+    color:#fff;
+    margin-bottom:20px;
+}
+
+.popupBox input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+
+.popupBox button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.closeBtn{
+    position:absolute;
+    top:10px;
+    right:10px;
+    width:35px !important;
+    height:35px;
+    border-radius:50%;
+}
 /* ===== NAVBAR ===== */
 .navbar {
     display: flex;
@@ -285,6 +339,7 @@ footer {
     .hero h1 {
         font-size: 42px;
     }
+    
 }
     </style>
     
@@ -319,7 +374,7 @@ footer {
 
   <p>
     No account?
-    <a href="/register.html">Register</a>
+    <a href="#" onclick="openRegisterPopup()">Register</a>
   </p>
 </div>  
 </div>
@@ -400,7 +455,17 @@ async function quickLogin() {
     alert(data.message || "Login failed");
   }
 }
+document.getElementById("loginUser").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        quickLogin();
+    }
+});
 
+document.getElementById("loginPass").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        quickLogin();
+    }
+});
 function goRegister() {
   window.location.href = "/register.html";
 }
@@ -479,10 +544,59 @@ function joinRoom(roomId) {
   window.location.href =
     "/index.html?room=" + encodeURIComponent(roomId) + "&watch=1";
 }
+function openRegisterPopup() {
+    document.getElementById("registerPopup").style.display = "flex";
+}
+
+function closeRegisterPopup() {
+    document.getElementById("registerPopup").style.display = "none";
+}
+async function registerFromPopup() {
+    const username = document.getElementById("regUsername").value.trim();
+    const password = document.getElementById("regPassword").value.trim();
+
+    if (!username || !password) {
+        alert("Please enter username and password");
+        return;
+    }
+
+    const res = await fetch("/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Registered!");
+
+        closeRegisterPopup();
+
+        document.getElementById("loginUser").value = username;
+        document.getElementById("loginPass").focus();
+
+    } else {
+        alert(data.message || "Register Failed");
+    }
+}
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 </script>
+<div id="registerPopup" class="popupOverlay" style="display:none;">
+  <div class="popupBox">
+    <button class="closeBtn" onclick="closeRegisterPopup()">&times;</button>
+    <h2>Create Account</h2>
+
+    <input id="regUsername" type="text" placeholder="Username">
+    <input id="regPassword" type="password" placeholder="Password">
+
+    <button onclick="registerFromPopup()">Register</button>
+  </div>
+</div>
 <footer>
      © 2026 Penglam Live — Built by KSL
 </footer>  
